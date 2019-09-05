@@ -1,0 +1,135 @@
+: '
+: NAME: set
+: SYNOPSIS: Configure an HPC environment setting
+: VERSION: 1.0.0
+: '
+#==============================================================================
+# Copyright (c) 2019-present Alces Flight Ltd
+#
+# This file/package is part of Flight Starter.
+#==============================================================================
+action=$1
+
+set_val() {
+  local key
+  local val
+  key="$1"
+  val="$2"
+  if [ "$val" == "off" ]; then
+    state="disabled"
+  elif [ "$val" == "on" ]; then
+    state="enabled"
+  else
+    echo "${flight_NAME} set: unrecognized value; use 'on' or 'off'"
+    return 1
+  fi
+  if [ "$HOME" ]; then
+    if [ -f "$HOME"/.config/flight/settings.rc ]; then
+      (
+          grep -v "^${key}=" "$HOME/.config/flight/settings.rc"
+          echo "${key}=${state}"
+      ) > "$HOME"/.config/flight/settings.rc.new
+      mv "$HOME"/.config/flight/settings.rc.new "$HOME"/.config/flight/settings.rc
+    else
+      mkdir -p "$HOME"/.config/flight
+      cat <<EOF > "$HOME/.config/flight/settings.rc"
+################################################################################
+##
+## Alces Flight - Shell configuration file
+## Copyright (c) 2019 Alces Flight Ltd
+##
+################################################################################
+${key}=${state}
+EOF
+    fi
+    if [ -f "$HOME"/.config/flight/settings.cshrc ]; then
+      (
+          grep -v "^set ${key}=" "$HOME/.config/flight/settings.cshrc"
+          echo "set ${key}=\"${state}\""
+      ) > "$HOME"/.config/flight/settings.cshrc.new
+      mv "$HOME"/.config/flight/settings.cshrc.new "$HOME"/.config/flight/settings.cshrc
+    else
+      mkdir -p "$HOME"/.config/flight
+      cat <<EOF > "$HOME/.config/flight/settings.cshrc"
+################################################################################
+##
+## Alces Flight - Shell configuration file
+## Copyright (c) 2019 Alces Flight Ltd
+##
+################################################################################
+set ${key}="${state}"
+EOF
+    fi
+  else
+    echo "${flight_NAME} set: unable to update setting; HOME environment variable unset"
+    return 1
+  fi
+}
+
+setup() {
+  local a xdg_config
+  IFS=: read -a xdg_config <<< "${XDG_CONFIG_HOME:-$HOME/.config}:${XDG_CONFIG_DIRS:-/etc/xdg}"
+  for a in "${xdg_config[@]}"; do
+    if [ -e "${a}"/flight.rc ]; then
+      source "${a}"/flight.rc
+      break
+    fi
+  done
+  if [ -d "${flight_ROOT}"/libexec/hooks ]; then
+    shopt -s nullglob
+    for a in "${flight_ROOT}"/libexec/hooks/*; do
+      source "${a}"
+    done
+    shopt -u nullglob
+  fi
+  if [ -f "${flight_ROOT}"/etc/flight-starter.rc ]; then
+    . "${flight_ROOT}"/etc/flight-starter.rc
+  fi
+}
+
+setup
+
+case $action in
+  help|hel|he|h|--help|-h)
+    cat <<EOF
+  SYNOPSIS:
+
+    $flight_NAME set <key> <value>
+
+  DESCRIPTION:
+
+    Set the ${flight_STARTER_product} setting <key> to <value>. Valid keys are
+    'hint', 'welcome' and 'always'. Valid values are 'on' and 'off'.
+
+EOF
+    ;;
+  hint|hin|hi|h)
+    if set_val 'flight_STARTER_hint' "$2"; then
+      echo "${flight_NAME} set: ${flight_STARTER_product} activation hint ${state}."
+    else
+      exit 1
+    fi
+    ;;
+  welcome|welcom|welco|welc|wel|we|w)
+    if set_val 'flight_STARTER_welcome' "$2"; then
+      echo "${flight_NAME} set: ${flight_STARTER_product} welcome prompt ${state}."
+    else
+      exit 1
+    fi
+    ;;
+  always|alway|alwa|alw|al|a)
+    if set_val 'flight_STARTER_always' "$2"; then
+      echo "${flight_NAME} set: ${flight_STARTER_product} on login ${state}."
+    else
+      exit 1
+    fi
+    ;;
+  "")
+    echo "${flight_NAME} set: usage: ${flight_NAME} set <key> <value>"
+    exit 1
+    ;;
+  *)
+    echo "${flight_NAME} set: unrecognized setting"
+    exit 1
+    ;;
+esac

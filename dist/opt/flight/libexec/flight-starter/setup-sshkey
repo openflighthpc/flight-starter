@@ -1,0 +1,79 @@
+#!/bin/bash
+#==============================================================================
+# Copyright (c) 2019-present Alces Flight Ltd
+#
+# This file/package is part of Flight Starter.
+#==============================================================================
+is_target_user() {
+    if [ ${flight_SSH_LOWEST_UID} -gt ${UID} ]; then
+        return 1
+    fi
+    for u in ${flight_SSH_SKIP_USERS}; do
+        if [ "$(id -un)" ==  "${u}" ]; then
+            return 1
+        fi
+    done
+}
+
+has_existing_key() {
+    if ! [ -f "${flight_SSH_DIR}"/"${flight_SSH_KEYNAME}.pub" -a -f "${flight_SSH_DIR}"/"${flight_SSH_KEYNAME}" ]; then
+        return 1
+    fi
+}
+
+create_key() {
+    echo "GENERATING SSH KEYPAIR - $(date)"
+    /usr/bin/ssh-keygen -q -t rsa \
+        -f "${flight_SSH_DIR}"/"${flight_SSH_KEYNAME}" \
+        -C "Flight HPC Cluster Key" \
+        -N '' < /dev/null
+}
+
+enable_key() {
+    echo "AUTHORIZING KEYS - $(date)"
+    cat "${flight_SSH_DIR}"/"${flight_SSH_KEYNAME}".pub >> "${flight_SSH_DIR}"/authorized_keys
+    chmod 600 "${flight_SSH_DIR}"/authorized_keys
+}
+
+new_config() {
+    echo "CREATING CONFIG"
+    cat << EOF >> "${flight_SSH_DIR}"/config
+Host *
+  IdentityFile ${flight_SSH_DIR}/${flight_SSH_KEYNAME}
+  StrictHostKeyChecking  no
+EOF
+    chmod 600 "${flight_SSH_DIR}"/config
+}
+
+main() {
+    if is_target_user && ! has_existing_key; then
+        mkdir -p "$(dirname "${flight_SSH_LOG}")"
+        echo -n "Generating SSH keypair: "
+        if create_key >> "${flight_SSH_LOG}"; then
+            echo 'OK'
+            echo -n "Authorizing key: "
+            if enable_key >> "${flight_SSH_LOG}"; then
+                echo 'OK'
+                new_config >> "${flight_SSH_LOG}"
+            else
+                echo 'FAIL'
+            fi
+        else
+            echo 'FAIL'
+        fi
+    fi
+}
+
+flight_ROOT=${flight_ROOT:-/opt/flight}
+
+if [ -f "${flight_ROOT}"/etc/setup-sshkey.rc ]; then
+    . "${flight_ROOT}"/etc/setup-sshkey.rc
+fi
+
+flight_SSH_LOWEST_UID=${flight_SSH_LOWEST_UID:-500}
+flight_SSH_SKIP_USERS="${flight_SSH_SKIP_USERS:-root}"
+flight_SSH_KEYNAME="${flight_SSH_KEYNAME:-id_alcescluster}"
+flight_SSH_DIR="${flight_SSH_DIR:-$HOME/.ssh}"
+flight_SSH_LOG="${flight_SSH_LOG:-$HOME/.cache/flight/ssh-keygen.log}"
+
+main

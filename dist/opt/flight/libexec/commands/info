@@ -1,0 +1,124 @@
+: '
+: NAME: info
+: SYNOPSIS: Brief help about your HPC environment
+: VERSION: 1.0.0
+: '
+#==============================================================================
+# Copyright (c) 2019-present Alces Flight Ltd
+#
+# This file/package is part of Flight Starter.
+#==============================================================================
+action=$1
+
+setup() {
+  local a xdg_config
+  IFS=: read -a xdg_config <<< "${XDG_CONFIG_HOME:-$HOME/.config}:${XDG_CONFIG_DIRS:-/etc/xdg}"
+  for a in "${xdg_config[@]}"; do
+    if [ -e "${a}"/flight.rc ]; then
+      source "${a}"/flight.rc
+      break
+    fi
+  done
+  if [ -d "${flight_ROOT}"/libexec/hooks ]; then
+    shopt -s nullglob
+    for a in "${flight_ROOT}"/libexec/hooks/*; do
+      source "${a}"
+    done
+    shopt -u nullglob
+  fi
+  if [ -f "${flight_ROOT}"/etc/flight-starter.rc ]; then
+    . "${flight_ROOT}"/etc/flight-starter.rc
+  fi
+}
+
+emit_doc() {
+  bold="$(tput bold)"
+  green="$(tput setaf 2)"
+  clr="$(tput sgr0)"
+  if [[ $TERM == "xterm-256color" ]]; then
+    white="$(tput setaf 7)"
+    bgblue="$(tput setab 68)"
+    bgblack="$(tput setab 0)"
+    blue="$(tput setaf 68)"
+    grey="$(tput setaf 249)"
+    bwhite="$(tput setaf 15)"
+  fi
+  fold -s -w70 | \
+    sed -e "s/\+/$bold/g" \
+        -e "s/{/$bold$bgblack$white/g" \
+        -e "s/}/$clr/g" \
+        -e "s/\^/$bgblue$bold$white/g" \
+        -e "s/\#/$bold$bgblack$green/g"
+}
+
+setup
+
+case $action in
+  help|hel|he|h|--help|-h)
+    cat <<EOF
+  SYNOPSIS:
+
+    $flight_NAME info
+
+  DESCRIPTION:
+
+    Show some brief help about the ${flight_STARTER_product} environment.
+
+EOF
+    ;;
+  *)
+    export LESS=${LESS:--FRX}
+    (
+      cat <<EOF
++==== Welcome to ${flight_STARTER_product}. ====}
+
+${flight_STARTER_product} provides a suite of tools to facilitate working with your high performance computing (HPC) or research compute environment.
+
++== Activation ==}
+
+By default when you log in to your environment ${flight_STARTER_product} is not activated.  This gives you the choice to opt in to its features, or to otherwise use your preferred tools to manage and interact with your environment.
+
+To activate ${flight_STARTER_product}, execute:
+
+  ^flight start}
+
+Once activated, your environment will be configured to operate with ${flight_STARTER_product} and the 'flight' command will provide access to the toolkit.
+
++== Customization ==}
+
+You may configure the behaviour of ${flight_STARTER_product} on log in to your environment using the 'flight set' command:
+
+ * To suppress the 'flight' command hints displayed when you log in,
+   execute:
+
+     ^flight set hints off}
+
+ * To suppress the welcome message entirely, execute:
+
+     ^flight set welcome off}
+
+ * To automatically have ${flight_STARTER_product} enabled when you log
+   in, execute:
+
+     ^flight set always on}
+
+You can toggle these settings 'on' or 'off' at any time.
+
++== Further help ==}
+EOF
+      if [ "${flight_STARTER_help_url}" ]; then
+        cat <<EOF
+
+For more help, please read the accompanying documentation at:
+
+  ${flight_STARTER_help_url}
+EOF
+      fi
+      cat <<EOF
+
+Once the ${flight_STARTER_product} environment is active, you can use the 'flight help' command to get help about specific tools.
+
+EOF
+    ) | emit_doc | ${PAGER:-less}
+    ;;
+esac

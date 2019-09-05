@@ -1,0 +1,11 @@
+################################################################################
+##
+## Flight Starter
+## Copyright (c) 2019-present Alces Flight Ltd
+##
+################################################################################
+cw_SSH_LOWEST_UID=500
+cw_SSH_SKIP_USERS="root"
+cw_SSH_KEYNAME=id_alcescluster
+cw_SSH_DIR="$HOME/.ssh"
+cw_SSH_LOG="$HOME/.cache/flight/setup-sshkey.log"
