@@ -52,10 +52,10 @@ cluster="${flight_STARTER_cluster_name:-your cluster}"
 bold="$(tput bold)"
 green="$(tput setaf 2)"
 clr="$(tput sgr0)"
+bgblack="$(tput setab 0)"
 if [[ $TERM == "xterm-256color" ]]; then
   white="$(tput setaf 7)"
   bgblue="$(tput setab 68)"
-  bgblack="$(tput setab 0)"
   blue="$(tput setaf 68)"
   grey="$(tput setaf 249)"
   bwhite="$(tput setaf 15)"
@@ -63,7 +63,7 @@ fi
 release="$(cut -f1,2,4 -d' ' /etc/redhat-release)"
 cat <<EOF
 ${bgblack} ${blue}-[${clr}${bgblack} $(eval echo ${flight_STARTER_banner})${clr}${bgblack} ${blue}]- ${clr}
-Welcome to ${bold}${green}${cluster}${clr}, based on ${bold}${release}${clr}.
+Welcome to ${bold}${bgblack}${green}${cluster}${clr}, based on ${bold}${release}${clr}.
 
 EOF
 if [ "${flight_STARTER_hint:-enabled}" == "enabled" ]; then
