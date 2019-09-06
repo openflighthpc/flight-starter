@@ -29,6 +29,7 @@ source ${flight_ROOT}/etc/flight-starter.rc
 if [ "$1" == "start" ]; then
   if [ "${-#*i}" != "$-" ]; then
     . ${flight_ROOT}/opt/runway/dist/etc/profile.d/alces-flight.sh
+    . ${flight_ROOT}/etc/flight-starter.rc
     if [ -f "$HOME"/.config/flight/settings.rc ]; then
       . "$HOME"/.config/flight/settings.rc
     fi
@@ -56,3 +57,5 @@ EOF
 else
   echo "flight: unrecognized command for inactive ${flight_STARTER_product} environment"
 fi
+
+unset $(declare | grep ^flight_STARTER | cut -f1 -d= | xargs)

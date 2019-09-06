@@ -25,7 +25,6 @@
 # https://github.com/openflighthpc/flight-starter
 #==============================================================================
 _flight_starter_bootstrap() {
-  local flight_STARTER_always flight_STARTER_welcome flight_STARTER_hint
   if [ -f "$HOME"/.config/flight/settings.rc ]; then
     . "$HOME"/.config/flight/settings.rc
   fi
@@ -34,6 +33,7 @@ _flight_starter_bootstrap() {
   elif [ -t 0 -a "${flight_STARTER_welcome:-enabled}" == "enabled" ]; then
     /bin/bash "${flight_ROOT}"/libexec/flight-starter/welcome.sh
   fi
+  unset $(declare | grep ^flight_STARTER | cut -f1 -d= | xargs)
 }
 _flight_starter_bootstrap
 unset _flight_starter_bootstrap

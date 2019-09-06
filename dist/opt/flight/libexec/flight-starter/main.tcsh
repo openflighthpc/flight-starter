@@ -31,6 +31,7 @@ source ${flight_ROOT}/etc/flight-starter.cshrc
 if ( "$fd_command" == "start" ) then
   if ($?prompt) then
     source ${flight_ROOT}/opt/runway/dist/etc/profile.d/alces-flight.csh
+    source ${flight_ROOT}/etc/flight-starter.cshrc
     if ( -f "$HOME"/.config/flight/settings.cshrc ) then
       source "$HOME"/.config/flight/settings.cshrc
     endif
@@ -43,8 +44,6 @@ if ( "$fd_command" == "start" ) then
   else
     source ${flight_ROOT}/opt/runway/dist/etc/profile.d/alces-flight.csh >& /dev/null
   endif
-  unset flight_STARTER_always flight_STARTER_welcome flight_STARTER_hint
-  unset flight_STARTER_cluster_name flight_STARTER_desc flight_STARTER_product flight_STARTER_release flight_STARTER_banner flight_STARTER_help_url
   set _exit=$?
 else if ( "$fd_command" == "set" || "$fd_command" == "info" ) then
   ${flight_ROOT}/bin/flight $args
@@ -69,4 +68,8 @@ else
 endif
 
 unset fd_command args
+foreach var (`set | grep '^flight_STARTER' | cut -f1 | xargs`)
+  unset $var
+end
+unset var
 test 0 = $_exit
