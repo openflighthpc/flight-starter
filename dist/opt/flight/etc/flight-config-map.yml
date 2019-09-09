@@ -1,0 +1,5 @@
+---
+cluster:
+  name:
+    var: 'flight_STARTER_cluster_name'
+    file: 'flight-starter'

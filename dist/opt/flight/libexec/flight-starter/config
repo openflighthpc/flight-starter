@@ -1,0 +1,210 @@
+#!/usr/bin/env ruby
+#==============================================================================
+# Copyright (C) 2019-present Alces Flight Ltd.
+#
+# This file is part of Flight Diagnostics.
+#
+# This program and the accompanying materials are made available under
+# the terms of the Eclipse Public License 2.0 which is available at
+# <https://www.eclipse.org/legal/epl-2.0>, or alternative license
+# terms made available by Alces Flight Ltd - please direct inquiries
+# about licensing to licensing@alces-flight.com.
+#
+# Flight Diagnostics is distributed in the hope that it will be useful, but
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, EITHER EXPRESS OR
+# IMPLIED INCLUDING, WITHOUT LIMITATION, ANY WARRANTIES OR CONDITIONS
+# OF TITLE, NON-INFRINGEMENT, MERCHANTABILITY OR FITNESS FOR A
+# PARTICULAR PURPOSE. See the Eclipse Public License 2.0 for more
+# details.
+#
+# You should have received a copy of the Eclipse Public License 2.0
+# along with Flight Diagnostics. If not, see:
+#
+#  https://opensource.org/licenses/EPL-2.0
+#
+# For more information on <project>, please visit:
+# https://github.com/alces-flight/flight-diag
+#==============================================================================
+require 'yaml'
+
+begin
+  require 'openflight/banner'
+rescue LoadError
+  nil
+end
+
+VERSION = '2019.1'
+PROGRAM_NAME = ENV.fetch('FLIGHT_PROGRAM_NAME','config')
+
+def help
+  begin
+    puts OpenFlight::Banner.render(title: 'Flight Config', version: VERSION)
+  rescue
+    nil
+  end
+  puts <<EOF
+Usage: #{PROGRAM_NAME} COMMAND [OPTION...] [ARG...]
+Configure a global HPC environment setting.
+
+Commands:
+  help                 Display global or [command] help documentation
+  get                  Get a value
+  list                 List configured values
+  set                  Set a value
+
+For more help on a particular command run:
+  #{PROGRAM_NAME} help COMMAND
+
+Please report bugs to <flight@openflighthpc.org>
+OpenFlight home page: <https://openflighthpc.org/>
+EOF
+end
+
+def value_map
+  @value_map =
+    begin
+      YAML.load_file(
+        File.join(
+          ENV.fetch('flight_ROOT','/opt/flight'),
+          'etc',
+          'flight-config-map.yml'
+        )
+      )
+    rescue
+      {}
+    end
+end
+
+def read_value(k)
+  category, key = k.split('.', 2)
+  if meta = (value_map[category][key] rescue nil)
+    get_value_for(meta)
+  else
+    nil
+  end
+end
+
+def set_value(k,v)
+  category, key = k.split('.', 2)
+  if meta = (value_map[category][key] rescue nil)
+    set_value_for(meta, v)
+  else
+    false
+  end
+end
+
+def file_values
+  @file_values ||= {}
+end
+
+def read_values(file)
+  {}.tap do |h|
+    File.readlines(
+      File.join(
+        ENV.fetch('flight_ROOT','/opt/flight'),
+        'etc',
+        "#{file}.rc"
+      )
+    ).each do |l|
+      next if l[0] == '#'
+      k, v = l.chomp.split("=")
+      if v[0] == '"' || v[0] == "'"
+        v = v[1..-2]
+      end
+      h[k] = v
+    end
+  end
+end
+
+def values_from(file)
+  if file_values[file]
+    file_values[file]
+  else
+    file_values[file] = read_values(file)
+  end
+end
+
+def set_value_for(meta, v)
+  qchar = v.include?('"') ? "'" : '"'
+  rc_fname = File.join(
+    ENV.fetch('flight_ROOT','/opt/flight'),
+    'etc',
+    "#{meta['file']}.rc"
+  )
+  rc_content =
+    File.read(rc_fname)
+      .gsub!(
+        /^#{meta['var']}=.*/,
+        %(#{meta['var']}=#{qchar}#{v}#{qchar})
+      )
+  File.write(rc_fname, rc_content)
+
+  cshrc_fname = File.join(
+    ENV.fetch('flight_ROOT','/opt/flight'),
+    'etc',
+    "#{meta['file']}.cshrc"
+  )
+  if File.exist?(cshrc_fname)
+    cshrc_content =
+      File.read(cshrc_fname)
+        .gsub!(
+          /^set #{meta['var']}=.*/,
+          %(set #{meta['var']}=#{qchar}#{v}#{qchar})
+        )
+    File.write(cshrc_fname, cshrc_content)
+  end
+  true
+end
+
+def get_value_for(meta)
+  values_from(meta['file'])[meta['var']]
+end
+
+def list_values
+  value_map.each do |category, key_map|
+    key_map.each do |key, meta|
+      puts %(#{category}.#{key}="#{get_value_for(meta)}")
+    end
+  end
+end
+
+def process(args)
+  cmd = args[0]
+  case cmd
+  when 'help'
+    help
+    true
+  when 'get'
+    if args[1].nil?
+      $stderr.puts "#{PROGRAM_NAME}: unknown setting: '#{args[1]}'"
+    elsif val = read_value(args[1])
+      puts val
+      true
+    else
+      $stderr.puts "#{PROGRAM_NAME}: unknown setting: '#{args[1]}'"
+    end
+  when 'set'
+    if set_value(args[1],args[2])
+      $stderr.puts "#{PROGRAM_NAME}: set '#{args[1]}' to '#{args[2]}'"
+      true
+    else
+      $stderr.puts "#{PROGRAM_NAME}: unable to set '#{args[1]}'"
+    end
+  when 'list'
+    list_values
+    true
+  else
+    $stderr.puts "#{PROGRAM_NAME}: '#{cmd}' is not a known command. See 'help'."
+  end
+rescue
+  $stderr.puts "#{PROGRAM_NAME}: failed: #{$!.message}"
+end
+
+args = ARGV.dup
+if args.empty?
+  help
+else
+  if !process(args)
+    exit(1)
+  end
+end
