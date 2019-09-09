@@ -44,11 +44,15 @@ if ( "$fd_command" == "start" ) then
   else
     source ${flight_ROOT}/opt/runway/dist/etc/profile.d/alces-flight.csh >& /dev/null
   endif
+  setenv flight_ACTIVE true
   set _exit=$?
 else if ( "$fd_command" == "set" || "$fd_command" == "info" ) then
   ${flight_ROOT}/bin/flight $args
   set _exit=$?
 else if ( "$fd_command" == "" ) then
+  if ( ! $?TERM ) then
+    setenv TERM=dumb
+  endif
   set bold=`tput bold`
   set clr=`tput sgr0`
   cat <<EOF

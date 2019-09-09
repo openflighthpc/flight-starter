@@ -31,10 +31,27 @@ if ( -f "$HOME"/.config/flight/settings.cshrc ) then
   source "$HOME"/.config/flight/settings.cshrc
 endif
 
-if ( "${flight_STARTER_always}" == "enabled" ) then
-  flight start
-else if ( "${flight_STARTER_welcome}" == "enabled" ) then
-  /bin/bash "${flight_ROOT}"/libexec/flight-starter/welcome.sh
+if ( ! $?flight_STARTER_always ) then
+  set flight_STARTER_always disabled
 endif
 
-unset flight_STARTER_always flight_STARTER_welcome flight_STARTER_hint
+if ( ! $?flight_STARTER_force ) then
+  set flight_STARTER_force false
+endif
+
+if ( ! $?flight_STARTER_welcome ) then
+  set flight_STARTER_welcome enabled
+endif
+
+if ( "${flight_STARTER_always}" == "enabled" || "${flight_STARTER_force}" == "true" ) then
+  flight start
+else
+  if ( "${flight_STARTER_welcome}" == "enabled" ) then
+    /bin/bash "${flight_ROOT}"/libexec/flight-starter/welcome.sh
+  endif
+endif
+
+foreach var (`set | grep '^flight_STARTER' | cut -f1 | xargs`)
+  unset $var
+end
+unset var

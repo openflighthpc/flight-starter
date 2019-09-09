@@ -39,9 +39,11 @@ if [ "$1" == "start" ]; then
   else
     . ${flight_ROOT}/opt/runway/dist/etc/profile.d/alces-flight.sh >/dev/null 2>&1
   fi
+  export flight_ACTIVE=true
 elif [ "$1" == "set" -o "$1" == "info" ]; then
   ${flight_ROOT}/bin/flight "$@"
 elif [ -z "$1" ]; then
+  export TERM=${TERM:-dumb}
   bold="$(tput bold)"
   clr="$(tput sgr0)"
   cat <<EOF
