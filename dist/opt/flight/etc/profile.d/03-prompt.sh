@@ -32,7 +32,7 @@ fi
 source "${flight_ROOT}"/etc/flight-starter.rc
 name=${flight_STARTER_cluster_name:-your cluster}
 
-if [ "${name}" != "your cluster" ] && ! echo "PS1" | grep -q "$name"; then
+if [ "${name}" != "your cluster" ] && ! echo "$PS1" | grep -q "$name"; then
   c=${flight_STARTER_prompt_color:-1;32;40}
   name="\[\e[${c}m\]($name)\[\e[0m\]"
   unset c
