@@ -40,6 +40,10 @@ if [ -d "${flight_ROOT}"/libexec/hooks ]; then
   shopt -u nullglob
 fi
 
+if [ -f /etc/xdg/flight/settings.rc ]; then
+  . /etc/xdg/flight/settings.rc
+fi
+
 if [ -f "$HOME"/.config/flight/settings.rc ]; then
   . "$HOME"/.config/flight/settings.rc
 fi

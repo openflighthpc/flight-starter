@@ -30,6 +30,11 @@
 # https://github.com/openflighthpc/flight-starter
 #==============================================================================
 action=$1
+if [ "$action" == "--global" ]; then
+  global=true
+  shift
+  action=$1
+fi
 
 set_val() {
   local key
@@ -44,16 +49,28 @@ set_val() {
     echo "${flight_NAME} set: unrecognized value; use 'on' or 'off'"
     return 1
   fi
-  if [ "$HOME" ]; then
-    if [ -f "$HOME"/.config/flight/settings.rc ]; then
-      (
-          grep -v "^${key}=" "$HOME/.config/flight/settings.rc"
-          echo "${key}=${state}"
-      ) > "$HOME"/.config/flight/settings.rc.new
-      mv "$HOME"/.config/flight/settings.rc.new "$HOME"/.config/flight/settings.rc
-    else
-      mkdir -p "$HOME"/.config/flight
-      cat <<EOF > "$HOME/.config/flight/settings.rc"
+  if [ "$global" == "true" ]; then
+    if [ "$UID" != 0 ]; then
+      echo "${flight_NAME} set: insufficient access to update global settings"
+      return 1
+    fi
+    dir=/etc/xdg/flight
+  elif [ "$HOME" ]; then
+    dir="$HOME"/.config/flight
+  else
+    echo "${flight_NAME} set: unable to update setting; HOME environment variable unset"
+    return 1
+  fi
+
+  if [ -f ${dir}/settings.rc ]; then
+    (
+      grep -v "^${key}=" "$dir/settings.rc"
+      echo "${key}=${state}"
+    ) > "$dir"/settings.rc.new
+    mv "$dir"/settings.rc.new "$dir"/settings.rc
+  else
+    mkdir -p "$dir"
+    cat <<EOF > "$dir/settings.rc"
 ################################################################################
 ##
 ## Alces Flight - Shell configuration file
@@ -63,15 +80,15 @@ set_val() {
 ${key}=${state}
 EOF
     fi
-    if [ -f "$HOME"/.config/flight/settings.cshrc ]; then
+    if [ -f "$dir"/settings.cshrc ]; then
       (
-          grep -v "^set ${key}=" "$HOME/.config/flight/settings.cshrc"
-          echo "set ${key}=\"${state}\""
-      ) > "$HOME"/.config/flight/settings.cshrc.new
-      mv "$HOME"/.config/flight/settings.cshrc.new "$HOME"/.config/flight/settings.cshrc
+        grep -v "^set ${key}=" "$dir/settings.cshrc"
+        echo "set ${key}=\"${state}\""
+      ) > "$dir"/settings.cshrc.new
+      mv "$dir"/settings.cshrc.new "$dir"/settings.cshrc
     else
-      mkdir -p "$HOME"/.config/flight
-      cat <<EOF > "$HOME/.config/flight/settings.cshrc"
+      mkdir -p "$dir"
+      cat <<EOF > "$dir"/settings.cshrc
 ################################################################################
 ##
 ## Alces Flight - Shell configuration file
@@ -81,10 +98,6 @@ EOF
 set ${key}="${state}"
 EOF
     fi
-  else
-    echo "${flight_NAME} set: unable to update setting; HOME environment variable unset"
-    return 1
-  fi
 }
 
 setup() {
@@ -115,16 +128,20 @@ case $action in
     cat <<EOF
   SYNOPSIS:
 
-    $flight_NAME set <key> <value>
+    $flight_NAME set [--global] <key> <value>
 
   DESCRIPTION:
 
-    Set the ${flight_STARTER_product} setting <key> to <value>. Valid keys are
-    'hint', 'welcome' and 'always'. Valid values are 'on' and 'off'.
+    Set the ${flight_STARTER_product} setting <key> to <value>. Valid
+    keys are 'hints', 'welcome', 'secondary' and 'always'. Valid
+    values are 'on' and 'off'.
+
+    Specify '--global' option to make the setting apply system-wide
+    (requires superuser access).
 
 EOF
     ;;
-  hint|hin|hi|h)
+  hints|hint|hin|hi|h)
     if set_val 'flight_STARTER_hint' "$2"; then
       echo "${flight_NAME} set: ${flight_STARTER_product} activation hint ${state}."
     else
@@ -145,8 +162,15 @@ EOF
       exit 1
     fi
     ;;
+  secondary|secondar|seconda|second|secon|seco|sec|se|s)
+    if set_val 'flight_STARTER_secondary' "$2"; then
+      echo "${flight_NAME} set: ${flight_STARTER_product} on secondary shells ${state}."
+    else
+      exit 1
+    fi
+    ;;
   "")
-    echo "${flight_NAME} set: usage: ${flight_NAME} set <key> <value>"
+    echo "${flight_NAME} set: usage: ${flight_NAME} set [--global] <key> <value>"
     exit 1
     ;;
   *)

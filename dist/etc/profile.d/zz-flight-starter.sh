@@ -46,6 +46,6 @@ flight() {
 }
 export -f flight
 
-if shopt -q login_shell && [ "${-#*i}" != "$-" ]; then
+if [ "${-#*i}" != "$-" ]; then
   source "${flight_ROOT}"/libexec/flight-starter/bootstrap.sh
 fi

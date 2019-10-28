@@ -32,6 +32,9 @@ if ( "$fd_command" == "start" ) then
   if ($?prompt) then
     source ${flight_ROOT}/opt/runway/dist/etc/profile.d/alces-flight.csh
     source ${flight_ROOT}/etc/flight-starter.cshrc
+    if ( -f /etc/xdg/flight/settings.cshrc ) then
+      source /etc/xdg/flight/settings.cshrc
+    endif
     if ( -f "$HOME"/.config/flight/settings.cshrc ) then
       source "$HOME"/.config/flight/settings.cshrc
     endif
