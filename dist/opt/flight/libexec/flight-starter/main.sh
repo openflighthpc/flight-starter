@@ -30,6 +30,9 @@ if [ "$1" == "start" ]; then
   if [ "${-#*i}" != "$-" ]; then
     . ${flight_ROOT}/opt/runway/dist/etc/profile.d/alces-flight.sh
     . ${flight_ROOT}/etc/flight-starter.rc
+    if [ -f /etc/xdg/flight/settings.rc ]; then
+      . /etc/xdg/flight/settings.rc
+    fi
     if [ -f "$HOME"/.config/flight/settings.rc ]; then
       . "$HOME"/.config/flight/settings.rc
     fi

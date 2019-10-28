@@ -24,30 +24,37 @@
 # For more information on Flight Starter, please visit:
 # https://github.com/openflighthpc/flight-starter
 #==============================================================================
-set flight_STARTER_always=disabled
-set flight_STARTER_welcome=enabled
+if ( -f /etc/xdg/flight/settings.cshrc ) then
+  source /etc/xdg/flight/settings.cshrc
+endif
 
 if ( -f "$HOME"/.config/flight/settings.cshrc ) then
   source "$HOME"/.config/flight/settings.cshrc
 endif
 
 if ( ! $?flight_STARTER_always ) then
-  set flight_STARTER_always disabled
+  set flight_STARTER_always=disabled
 endif
 
 if ( ! $?flight_STARTER_force ) then
-  set flight_STARTER_force false
+  set flight_STARTER_force=false
 endif
 
 if ( ! $?flight_STARTER_welcome ) then
-  set flight_STARTER_welcome enabled
+  set flight_STARTER_welcome=enabled
 endif
 
-if ( "${flight_STARTER_always}" == "enabled" || "${flight_STARTER_force}" == "true" ) then
-  flight start
-else
-  if ( "${flight_STARTER_welcome}" == "enabled" ) then
-    /bin/bash "${flight_ROOT}"/libexec/flight-starter/welcome.sh
+if ( ! $?flight_STARTER_secondary ) then
+  set flight_STARTER_secondary=enabled
+endif
+
+if ( "${flight_STARTER_secondary}" == "enabled" || $?loginsh) then
+  if ( "${flight_STARTER_always}" == "enabled" || "${flight_STARTER_force}" == "true" ) then
+    flight start
+  else
+    if ( "${flight_STARTER_welcome}" == "enabled" ) then
+      /bin/bash "${flight_ROOT}"/libexec/flight-starter/welcome.sh
+    endif
   endif
 endif
 

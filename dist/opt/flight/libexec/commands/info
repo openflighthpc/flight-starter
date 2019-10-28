@@ -118,6 +118,11 @@ You may configure the behaviour of ${flight_STARTER_product} on log in to your e
 
      ^flight set welcome off}
 
+ * To disable ${flight_STARTER_product} start up for interactive
+   subshells, execute:
+
+     ^flight set secondary off}
+
  * To automatically have ${flight_STARTER_product} enabled when you log
    in, execute:
 

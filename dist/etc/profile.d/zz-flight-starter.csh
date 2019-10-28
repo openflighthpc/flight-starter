@@ -50,7 +50,7 @@ if ($?tcsh) then
   alias flight $prefix'set args="'$histchar'*";source ${flight_ROOT}/libexec/flight-starter/main.tcsh; '$postfix;
   unset prefix postfix
 
-  if($?loginsh && $?prompt) then
+  if($?prompt) then
     source ${flight_ROOT}/libexec/flight-starter/bootstrap.tcsh
   endif
 endif
