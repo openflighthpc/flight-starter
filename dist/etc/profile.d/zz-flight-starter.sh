@@ -41,11 +41,13 @@ if [ -d "${flight_ROOT}"/libexec/hooks ]; then
 fi
 unset a xdg_config
 
-flight() {
-  source "${flight_ROOT}"/libexec/flight-starter/main.sh "$@"
-}
-export -f flight
+if [ "$(type -t flight)" != "function" ]; then
+  flight() {
+    source "${flight_ROOT}"/libexec/flight-starter/main.sh "$@"
+  }
+  export -f flight
 
-if [ "${-#*i}" != "$-" ]; then
-  source "${flight_ROOT}"/libexec/flight-starter/bootstrap.sh
+  if [ "${-#*i}" != "$-" ]; then
+    source "${flight_ROOT}"/libexec/flight-starter/bootstrap.sh
+  fi
 fi
