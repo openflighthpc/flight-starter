@@ -31,14 +31,19 @@ _flight_starter_bootstrap() {
   if [ -f "$HOME"/.config/flight/settings.rc ]; then
     . "$HOME"/.config/flight/settings.rc
   fi
-  if [ "${flight_STARTER_secondary:-enabled}" == "enabled" ] || shopt -q login_shell; then
-    if [ "${flight_STARTER_always:-disabled}" == "enabled" -o "${flight_STARTER_force:-false}" == "true" ]; then
-      flight start
-    elif [ -t 0 -a "${flight_STARTER_welcome:-enabled}" == "enabled" ]; then
+  if ( ( shopt -q login_shell || \
+           [ "${flight_STARTER_secondary:-enabled}" == "enabled" ]
+       ) && \
+         [ "${flight_STARTER_always}" == "enabled" ]
+     ) || \
+       [ "${flight_SYSTEM_start:-${flight_STARTER_force}}" == "true" ]; then
+    flight start
+  elif [ -t 0 -a "${flight_STARTER_welcome:-enabled}" == "enabled" ]; then
       /bin/bash "${flight_ROOT}"/libexec/flight-starter/welcome.sh
-    fi
   fi
   unset $(declare | grep ^flight_STARTER | cut -f1 -d= | xargs)
 }
-_flight_starter_bootstrap
+if [ "${flight_ACTIVE}" != "true" ]; then
+    _flight_starter_bootstrap
+fi
 unset _flight_starter_bootstrap

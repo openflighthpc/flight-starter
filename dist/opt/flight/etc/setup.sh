@@ -1,5 +1,5 @@
 #==============================================================================
-# Copyright (C) 2019-present Alces Flight Ltd.
+# Copyright (C) 2020-present Alces Flight Ltd.
 #
 # This file is part of Flight Starter.
 #
@@ -24,35 +24,10 @@
 # For more information on Flight Starter, please visit:
 # https://github.com/openflighthpc/flight-starter
 #==============================================================================
-export flight_ROOT=${flight_ROOT:-/opt/flight}
-IFS=: read -a xdg_config <<< "${XDG_CONFIG_HOME:-$HOME/.config}:${XDG_CONFIG_DIRS:-/etc/xdg}"
-for a in "${xdg_config[@]}"; do
-  if [ -e "${a}"/flight.rc ]; then
-    source "${a}"/flight.rc
-    break
-  fi
-done
-
-if [ "$1" == "start" ]; then
-  flight_SYSTEM_start=true
+(return 0 2>/dev/null) && _flight_sourcechk=true
+if [ "${_flight_sourcechk}" != "true" ]; then
+  echo "$0: this script should be sourced, not executed"
+  exit 1
 fi
-
-if [ -d "${flight_ROOT}"/libexec/hooks ]; then
-  shopt -s nullglob
-  for a in "${flight_ROOT}"/libexec/hooks/*.sh; do
-    source "${a}"
-  done
-  shopt -u nullglob
-fi
-unset a xdg_config
-
-if [ "$(type -t flight)" != "function" ]; then
-  flight() {
-    source "${flight_ROOT}"/libexec/flight-starter/main.sh "$@"
-  }
-  export -f flight
-fi
-
-source "${flight_ROOT}"/libexec/flight-starter/bootstrap.sh
-
-unset flight_SYSTEM_start
+unset _flight_sourcechk
+source /etc/profile.d/zz-flight-starter.sh start
