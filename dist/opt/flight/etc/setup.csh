@@ -1,11 +1,5 @@
-: '
-: NAME: config
-: SYNOPSIS: Configure a global HPC environment setting
-: VERSION: 1.0.0
-: ROOT: true
-: '
 #==============================================================================
-# Copyright (C) 2019-present Alces Flight Ltd.
+# Copyright (C) 2020-present Alces Flight Ltd.
 #
 # This file is part of Flight Starter.
 #
@@ -30,37 +24,12 @@
 # For more information on Flight Starter, please visit:
 # https://github.com/openflighthpc/flight-starter
 #==============================================================================
-action=$1
-
-setup() {
-  local a xdg_config
-  IFS=: read -a xdg_config <<< "${XDG_CONFIG_HOME:-$HOME/.config}:${XDG_CONFIG_DIRS:-/etc/xdg}"
-  for a in "${xdg_config[@]}"; do
-    if [ -e "${a}"/flight.rc ]; then
-      source "${a}"/flight.rc
-      break
-    fi
-  done
-  if [ -d "${flight_ROOT}"/libexec/hooks ]; then
-    shopt -s nullglob
-    for a in "${flight_ROOT}"/libexec/hooks/*.sh; do
-      source "${a}"
-    done
-    shopt -u nullglob
-  fi
-  if [ -f "${flight_ROOT}"/etc/flight-starter.rc ]; then
-    . "${flight_ROOT}"/etc/flight-starter.rc
-  fi
-}
-
-setup
-
-export FLIGHT_PROGRAM_NAME=${FLIGHT_PROGRAM_NAME:-${flight_NAME} config}
-case $action in
-  help|hel|he|h|--help|-h)
-    exec ${flight_ROOT}/bin/flexec ruby ${flight_ROOT}/libexec/flight-starter/config help "$@"
-    ;;
-  *)
-    exec sudo ${flight_ROOT}/bin/flexec ruby ${flight_ROOT}/libexec/flight-starter/config "$@"
-    ;;
-esac
+if (! $?_flight_sourcechk) then
+  set _flight_sourcechk=($_)
+  if ( "$_flight_sourcechk" == "" ) then
+    echo "${0}: this script should be sourced, not executed"
+    exit 1
+  endif
+endif
+unset _flight_sourcechk
+source /etc/profile.d/zz-flight-starter.csh start

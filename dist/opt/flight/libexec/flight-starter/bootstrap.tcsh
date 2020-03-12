@@ -24,41 +24,49 @@
 # For more information on Flight Starter, please visit:
 # https://github.com/openflighthpc/flight-starter
 #==============================================================================
-if ( -f /etc/xdg/flight/settings.cshrc ) then
-  source /etc/xdg/flight/settings.cshrc
+if ( ! $?flight_ACTIVE ) then
+  set flight_ACTIVE=false
 endif
 
-if ( -f "$HOME"/.config/flight/settings.cshrc ) then
-  source "$HOME"/.config/flight/settings.cshrc
-endif
+if ( "${flight_ACTIVE}" != "true" ) then
+  if ( -f /etc/xdg/flight/settings.cshrc ) then
+    source /etc/xdg/flight/settings.cshrc
+  endif
 
-if ( ! $?flight_STARTER_always ) then
-  set flight_STARTER_always=disabled
-endif
+  if ( -f "$HOME"/.config/flight/settings.cshrc ) then
+    source "$HOME"/.config/flight/settings.cshrc
+  endif
 
-if ( ! $?flight_STARTER_force ) then
-  set flight_STARTER_force=false
-endif
+  if ( ! $?flight_STARTER_always ) then
+    set flight_STARTER_always=disabled
+  endif
 
-if ( ! $?flight_STARTER_welcome ) then
-  set flight_STARTER_welcome=enabled
-endif
+  if ( ! $?flight_STARTER_force ) then
+    set flight_STARTER_force=false
+  endif
 
-if ( ! $?flight_STARTER_secondary ) then
-  set flight_STARTER_secondary=enabled
-endif
+  if ( ! $?flight_STARTER_welcome ) then
+    set flight_STARTER_welcome=enabled
+  endif
 
-if ( "${flight_STARTER_secondary}" == "enabled" || $?loginsh) then
-  if ( "${flight_STARTER_always}" == "enabled" || "${flight_STARTER_force}" == "true" ) then
+  if ( ! $?flight_STARTER_secondary ) then
+    set flight_STARTER_secondary=enabled
+  endif
+
+  if ( $?flight_SYSTEM_start ) then
+    set flight_STARTER_force=${flight_SYSTEM_start}
+  endif
+
+  if ( ( ( $?loginsh || "${flight_STARTER_secondary}" == "enabled" ) && "${flight_STARTER_always}" == "enabled" ) || "${flight_STARTER_force}" == "true" ) then
     flight start
   else
     if ( "${flight_STARTER_welcome}" == "enabled" ) then
       /bin/bash "${flight_ROOT}"/libexec/flight-starter/welcome.sh
     endif
   endif
-endif
 
-foreach var (`set | grep '^flight_STARTER' | cut -f1 | xargs`)
-  unset $var
-end
-unset var
+  foreach var (`set | grep '^flight_STARTER' | cut -f1 | xargs`)
+    unset $var
+  end
+  unset var
+endif

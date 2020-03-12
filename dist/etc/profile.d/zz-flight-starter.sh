@@ -32,9 +32,14 @@ for a in "${xdg_config[@]}"; do
     break
   fi
 done
+
+if [ "$1" == "start" ]; then
+  flight_SYSTEM_start=true
+fi
+
 if [ -d "${flight_ROOT}"/libexec/hooks ]; then
   shopt -s nullglob
-  for a in "${flight_ROOT}"/libexec/hooks/*; do
+  for a in "${flight_ROOT}"/libexec/hooks/*.sh; do
     source "${a}"
   done
   shopt -u nullglob
@@ -46,8 +51,8 @@ if [ "$(type -t flight)" != "function" ]; then
     source "${flight_ROOT}"/libexec/flight-starter/main.sh "$@"
   }
   export -f flight
-
-  if [ "${-#*i}" != "$-" ]; then
-    source "${flight_ROOT}"/libexec/flight-starter/bootstrap.sh
-  fi
 fi
+
+source "${flight_ROOT}"/libexec/flight-starter/bootstrap.sh
+
+unset flight_SYSTEM_start
