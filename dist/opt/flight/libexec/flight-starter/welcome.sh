@@ -34,7 +34,7 @@ done
 flight_ROOT="${flight_ROOT:-/opt/flight}"
 if [ -d "${flight_ROOT}"/libexec/hooks ]; then
   shopt -s nullglob
-  for a in "${flight_ROOT}"/libexec/hooks/*; do
+  for a in "${flight_ROOT}"/libexec/hooks/*.sh; do
     source "${a}"
   done
   shopt -u nullglob
