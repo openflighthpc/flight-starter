@@ -64,10 +64,17 @@ if [[ $TERM == "xterm-256color" ]]; then
   grey="$(tput setaf 249)"
   bwhite="$(tput setaf 15)"
 fi
-release="$(cut -f1,2,4 -d' ' /etc/redhat-release)"
+if [ -f /etc/redhat-release ]; then
+  release="$(cut -f1,2,4 -d' ' /etc/redhat-release)"
+  reltext=", based on ${bold}${release}${clr}"
+elif [ -f /etc/lsb-release ]; then
+  . /etc/lsb-release
+  release="${DISTRIB_DESCRIPTION:-${DISTRIB_ID} ${DISTRIB_RELEASE}}"
+  reltext=", based on ${bold}${release}${clr}"
+fi
 cat <<EOF
 ${bgblack} ${blue}-[${clr}${bgblack} $(eval echo ${flight_STARTER_banner})${clr}${bgblack} ${blue}]- ${clr}
-Welcome to ${bold}${bgblack}${green}${cluster}${clr}, based on ${bold}${release}${clr}.
+Welcome to ${bold}${bgblack}${green}${cluster}${clr}${reltext}.
 
 EOF
 if [ "${flight_STARTER_hint:-enabled}" == "enabled" ]; then
