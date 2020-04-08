@@ -29,8 +29,8 @@ cluster=$1
 version=$2
 distro=$3
 
-c_version="[1;37;40m${version:-OpenFlight r2020.1}[0m"
-j_version="${version:-OpenFlight r2020.1}"
+c_version="[1;37;40m${version:-OpenFlight r2020.2}[0m"
+j_version="${version:-OpenFlight r2020.2}"
 if [ "$distro" ]; then
   c_distro="[1;37;40mBased on $distro[0m"
   j_distro="Based on $distro"
