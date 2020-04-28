@@ -25,6 +25,11 @@
 # https://github.com/openflighthpc/flight-starter
 #==============================================================================
 export flight_ROOT=${flight_ROOT:-/opt/flight}
+# record the value of nounset
+if [ "${-#*u}" != "$-" ]; then
+  set +u
+  _nounset_set=true
+fi
 IFS=: read -a xdg_config <<< "${XDG_CONFIG_HOME:-$HOME/.config}:${XDG_CONFIG_DIRS:-/etc/xdg}"
 for a in "${xdg_config[@]}"; do
   if [ -e "${a}"/flight.rc ]; then
@@ -55,4 +60,7 @@ fi
 
 source "${flight_ROOT}"/libexec/flight-starter/bootstrap.sh
 
-unset flight_SYSTEM_start
+if [ "${_nounset_set}" == "true" ]; then
+  set -u
+fi
+unset flight_SYSTEM_start _nounset_set
