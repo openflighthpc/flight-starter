@@ -35,15 +35,19 @@
   len=$(echo "${bold}${white}'${bgblue}${clr}${bold}${white}'${clr}" | wc -c)
   len=$(($len+20))
   shopt -s nullglob
+  flight_STARTER_tips_system=2
   for i in "$flight_ROOT"/etc/banner/tips.d/*.rc; do
+    unset flight_TIP_synopsis flight_TIP_command
     . "$i"
     if [ "$flight_TIP_break" == "true" ]; then
       echo ""
       unset flight_TIP_break
     fi
-    printf "%-${len}s - %s\n" \
-           "${bold}${white}'${bgblue}$flight_TIP_command${clr}${bold}${white}'${clr}" \
-           "$flight_TIP_synopsis"
+    if [ -n "$flight_TIP_command" -a -n "$flight_TIP_synopsis" ]; then
+      printf "%-${len}s - %s\n" \
+             "${bold}${white}'${bgblue}$flight_TIP_command${clr}${bold}${white}'${clr}" \
+             "$flight_TIP_synopsis"
+    fi
   done
   shopt -u nullglob
   echo ""
