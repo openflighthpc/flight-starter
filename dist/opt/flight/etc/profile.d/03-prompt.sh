@@ -24,6 +24,8 @@
 # For more information on Flight Starter, please visit:
 # https://github.com/openflighthpc/flight-starter
 #==============================================================================
+export flight_DEFINES_orig_PS1="${PS1}"
+
 if [ "$PS1" = "\\s-\\v\\\$ " ]; then
   # prompt hasn't been set yet, give it a default
   PS1="[\u@\h \W]\\$ "
@@ -40,17 +42,35 @@ if [ "${name}" != "your cluster" ] && ! echo "$PS1" | grep -q "$name"; then
   if [[ "$PS1" == *'\h'* ]]; then
     # If there is a hostname element in the prompt (`\h`), we inject the
     # cluster name after it.
-    PS1=${PS1/\h/\h $name}
+    PS1=${PS1/\\h/\\h $name}
   elif [[ "$PS1" == *'\W'* ]]; then
     # Next we attempt to inject it before any working directory element (`\W`).
-    PS1=${PS1/\W/$name \W}
+    PS1=${PS1/\\W/$name \\W}
   elif [[ "$PS1" == *'\$'* ]]; then
     # Finally, we fallback to injecting it before the prompt terminator (`\$`).
-    PS1=${PS1/\$/$name \\$}
+    PS1=${PS1/\\\$/$name \\\$}
   fi
-
-  unset name
   # If none of the above elements exist, we leave the prompt unchanged.
 fi
 
+if [ ${SHLVL:-1} -gt 1 ]; then
+  if [[ "$PS1" == *'\$'* ]]; then
+    # Try injecting subshell indicator before the prompt terminator (`\$`).
+    PS1=${PS1/\\\$/(+)\\\$}
+  elif [[ "$PS1" == *'\u'* ]]; then
+    # If there is a username element in the prompt (`\u`), we inject the
+    # subshell indicator before it.
+    PS1=${PS1/\\u/(+)\\u}
+  elif [[ "$PS1" == *'\h'* ]]; then
+    # If there is a hostname element in the prompt (`\h`), we inject the
+    # subshell indicator before it.
+    PS1=${PS1/\\h/(+)\\h}
+  elif [[ "$PS1" == *'\W'* ]]; then
+    # Finally we attempt to inject it after any working directory element (`\W`).
+    PS1=${PS1/\\W/\\W(+)}
+  fi
+  # If none of the above elements exist, we leave the prompt unchanged.
+fi
+
+unset name
 unset $(declare | grep ^flight_STARTER | cut -f1 -d= | xargs)

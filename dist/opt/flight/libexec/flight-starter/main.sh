@@ -27,6 +27,11 @@
 source ${flight_ROOT}/etc/flight-starter.rc
 
 if [ "$1" == "start" ]; then
+  if [ -z "${flight_DEFINES}" ]; then
+    flight_DEFINES=(flight_ACTIVE)
+    flight_DEFINES_exits=()
+    export flight_DEFINES flight_DEFINES_exits
+  fi
   if [ "${-#*i}" != "$-" ]; then
     . ${flight_ROOT}/opt/runway/dist/etc/profile.d/alces-flight.sh
     . ${flight_ROOT}/etc/flight-starter.rc
@@ -43,6 +48,10 @@ if [ "$1" == "start" ]; then
     . ${flight_ROOT}/opt/runway/dist/etc/profile.d/alces-flight.sh >/dev/null 2>&1
   fi
   export flight_ACTIVE=true
+elif [ "$1" == "stop" ]; then
+  if [ "${-#*i}" != "$-" ]; then
+    echo "${flight_STARTER_product} is already inactive."
+  fi
 elif [ "$1" == "set" -o "$1" == "info" ]; then
   ${flight_ROOT}/bin/flight "$@"
 elif [ -z "$1" ]; then
