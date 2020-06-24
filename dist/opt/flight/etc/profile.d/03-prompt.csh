@@ -31,6 +31,8 @@ else
   set name="${flight_STARTER_cluster_name}"
 endif
 
+setenv flight_DEFINES_orig_prompt "${prompt}"
+
 if ( "$name" != "your cluster" ) then
   echo "$prompt" | grep -q "$name"
   if ( $? != 0 ) then
