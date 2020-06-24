@@ -86,7 +86,7 @@ EOF
     else
       if [ "$1" == "--subshell" ]; then
         if [[ -t 0 ]]; then
-          flight_STARTER_force=true ${SHELL:-/bin/bash} -l
+          flight_STARTER_force=true exec ${SHELL:-/bin/bash} -l
         else
           echo "$flight_NAME start: can't start subshell when non-interactive; try: 'flight start'" 1>&2
         fi
