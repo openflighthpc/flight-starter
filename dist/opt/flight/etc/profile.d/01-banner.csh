@@ -27,4 +27,8 @@
 if ( ! $?flight_ROOT ) then
   setenv flight_ROOT /opt/flight
 endif
-/bin/bash ${flight_ROOT}/etc/profile.d/01-banner.sh
+if ($?prompt) then
+  /bin/bash -i ${flight_ROOT}/etc/profile.d/01-banner.sh
+else
+  /bin/bash ${flight_ROOT}/etc/profile.d/01-banner.sh
+endif
