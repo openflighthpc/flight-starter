@@ -25,7 +25,7 @@
 # https://github.com/openflighthpc/flight-starter
 #==============================================================================
 if ( ! $?flight_ACTIVE ) then
-  set flight_ACTIVE=false
+  setenv flight_ACTIVE false
 endif
 
 if ( "${flight_ACTIVE}" != "true" ) then
