@@ -76,7 +76,7 @@ alias flight $prefix'set args="'$histchar'*";source ${flight_ROOT}/libexec/fligh
 unset prefix postfix
 
 if ( ! $?flight_ACTIVE ) then
-  set flight_ACTIVE=false
+  setenv flight_ACTIVE false
 endif
 
 if ($?prompt) then

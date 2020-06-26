@@ -25,7 +25,7 @@
 # https://github.com/openflighthpc/flight-starter
 #==============================================================================
 (
-  if [ "${-#*i}" != "$-" ]; then
+  if [ "${-#*i}" != "$-" -o "$1" == "--force" ]; then
     source ${flight_ROOT}/etc/flight-starter.rc
     if [ -f /etc/redhat-release ]; then
       release="$(cut -f1,2,4 -d' ' /etc/redhat-release)"
