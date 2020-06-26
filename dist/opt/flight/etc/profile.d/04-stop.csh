@@ -1,5 +1,5 @@
 #==============================================================================
-# Copyright (C) 2019-present Alces Flight Ltd.
+# Copyright (C) 2020-present Alces Flight Ltd.
 #
 # This file is part of Flight Starter.
 #
@@ -24,11 +24,5 @@
 # For more information on Flight Starter, please visit:
 # https://github.com/openflighthpc/flight-starter
 #==============================================================================
-if ( ! $?flight_ROOT ) then
-  setenv flight_ROOT /opt/flight
-endif
-if ($?prompt) then
-  /bin/bash -i ${flight_ROOT}/etc/profile.d/01-banner.sh
-else
-  /bin/bash ${flight_ROOT}/etc/profile.d/01-banner.sh
-endif
+alias flstop 'source "${flight_ROOT}"/libexec/flight-starter/stop.tcsh'
+setenv flight_DEFINES "${flight_DEFINES} flstop"

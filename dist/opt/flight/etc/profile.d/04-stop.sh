@@ -1,5 +1,5 @@
 #==============================================================================
-# Copyright (C) 2019-present Alces Flight Ltd.
+# Copyright (C) 2020-present Alces Flight Ltd.
 #
 # This file is part of Flight Starter.
 #
@@ -24,11 +24,25 @@
 # For more information on Flight Starter, please visit:
 # https://github.com/openflighthpc/flight-starter
 #==============================================================================
-if ( ! $?flight_ROOT ) then
-  setenv flight_ROOT /opt/flight
-endif
-if ($?prompt) then
-  /bin/bash -i ${flight_ROOT}/etc/profile.d/01-banner.sh
-else
-  /bin/bash ${flight_ROOT}/etc/profile.d/01-banner.sh
-endif
+flstop() {
+  local op
+  op="$1"
+  case $op in
+    help|hel|he|h|--help|-h)
+      flexec flight stop "$@"
+      ;;
+    '')
+      source "${flight_ROOT}"/libexec/flight-starter/stop.sh --shell "$@"
+      ;;
+    *)
+      echo "Usage: flight stop [--help]"
+      ;;
+  esac
+}
+export -f flstop
+
+flight_stop() {
+  flstop "$@"
+}
+export -f flight_stop
+flight_DEFINES+=(flstop flight_stop)

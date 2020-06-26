@@ -1,5 +1,5 @@
 #==============================================================================
-# Copyright (C) 2019-present Alces Flight Ltd.
+# Copyright (C) 2020-present Alces Flight Ltd.
 #
 # This file is part of Flight Starter.
 #
@@ -24,11 +24,32 @@
 # For more information on Flight Starter, please visit:
 # https://github.com/openflighthpc/flight-starter
 #==============================================================================
-if ( ! $?flight_ROOT ) then
-  setenv flight_ROOT /opt/flight
-endif
-if ($?prompt) then
-  /bin/bash -i ${flight_ROOT}/etc/profile.d/01-banner.sh
-else
-  /bin/bash ${flight_ROOT}/etc/profile.d/01-banner.sh
-endif
+source ${flight_ROOT}/etc/flight-starter.rc
+
+for a in "${flight_DEFINES_exits[@]}"; do
+  $a
+done
+unset flight_DEFINES_exits
+
+for a in $(env | grep '^flight_DEFINES_orig_' | cut -f1 -d= | xargs); do
+  tgt=$(echo "$a" | cut -f4- -d'_')
+  eval "$tgt=\"${!a//\\/\\\\}\""
+  unset tgt
+  unset $a
+done
+
+for a in "${flight_DEFINES[@]}"; do
+  unset $a
+done
+unset flight_DEFINES a
+
+flight() {
+  source "${flight_ROOT}"/libexec/flight-starter/main.sh "$@"
+}
+export -f flight
+
+if [ "${-#*i}" != "$-" ]; then
+  echo "${flight_STARTER_product} is now inactive." 1>&2
+fi
+
+unset $(declare | grep ^flight_STARTER | cut -f1 -d= | xargs)

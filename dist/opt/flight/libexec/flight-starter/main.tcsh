@@ -29,6 +29,10 @@ set fd_command = `echo $args | cut -f1 -d' '`
 source ${flight_ROOT}/etc/flight-starter.cshrc
 
 if ( "$fd_command" == "start" ) then
+  if (! $?flight_DEFINES) then
+     setenv flight_DEFINES_exits ""
+     setenv flight_DEFINES "flight_ACTIVE"
+  endif
   if ($?prompt) then
     source ${flight_ROOT}/opt/runway/dist/etc/profile.d/alces-flight.csh
     source ${flight_ROOT}/etc/flight-starter.cshrc
@@ -48,6 +52,11 @@ if ( "$fd_command" == "start" ) then
     source ${flight_ROOT}/opt/runway/dist/etc/profile.d/alces-flight.csh >& /dev/null
   endif
   setenv flight_ACTIVE true
+  set _exit=$?
+else if ( "$fd_command" == "stop" ) then
+  if ($?prompt) then
+    echo "${flight_STARTER_product} is already inactive."
+  endif
   set _exit=$?
 else if ( "$fd_command" == "set" || "$fd_command" == "info" ) then
   ${flight_ROOT}/bin/flight $args
