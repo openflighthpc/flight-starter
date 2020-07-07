@@ -1,5 +1,6 @@
+#!/usr/bin/env ruby
 #==============================================================================
-# Copyright (C) 2019-present Alces Flight Ltd.
+# Copyright (C) 2020-present Alces Flight Ltd.
 #
 # This file is part of Flight Starter.
 #
@@ -24,26 +25,44 @@
 # For more information on Flight Starter, please visit:
 # https://github.com/openflighthpc/flight-starter
 #==============================================================================
-export flight_DEFINES_orig_PS1="${PS1}"
-
-if [ "$PS1" = "\\s-\\v\\\$ " ]; then
-  # prompt hasn't been set yet, give it a default
-  PS1="[\u@\h \W]\\$ "
-fi
-
-source "${flight_ROOT}"/etc/flight-starter.rc
-name=${flight_STARTER_cluster_name:-your cluster}
-
-if [ "${name}" != "your cluster" ] && ! echo "$PS1" | grep -q "$name"; then
-  PS1="$(
-    "${flight_ROOT}"/bin/ruby \
-    "${flight_ROOT}"/libexec/flight-starter/augment-bash-prompt \
-      "$PS1" \
-      "$SHLVL" \
-      "$name" \
-      "${flight_STARTER_prompt_color:-1;32;40}"
-  )"
-fi
-
-unset name
-unset $(declare | grep ^flight_STARTER | cut -f1 -d= | xargs)
+ps1 = ARGV[0]
+shlvl = ARGV[1].to_i || 1
+name = ARGV[2] || "your cluster"
+col = ARGV[3] || "1;32;40"
+inside = false
+injected_cluster_name = false
+injected_shell_level = false
+n = "\\[\\e[#{col}m\\](#{name})\\[\\e[0m\\]"
+parts = ps1.split(/(\\\[)(.*?)(\\\])/)
+mapped = parts.map do |x|
+  if x == '\['
+    inside = true
+  elsif x == '\]'
+    inside = false
+  elsif !inside
+    injected_cluster_name ||=
+      x.gsub!('\h',"\\h #{n}") ||
+      x.gsub!('\W',"#{n} \\W") ||
+      x.gsub!('\w',"#{n} \\w") ||
+      x.gsub!('\$',"#{n} \\$")
+  end
+  x
+end
+if shlvl > 1
+  mapped = mapped.reverse.map do |x|
+    if x == '\]'
+      inside = true
+    elsif x == '\['
+      inside = false
+    elsif !inside
+      injected_shell_level ||=
+        x.gsub!('\$',"(+)\\$") ||
+        x.gsub!('\u',"(+)\\u") ||
+        x.gsub!('\h',"(+)\\h") ||
+        x.gsub!('\w',"\\w(+)") ||
+        x.gsub!('\W',"\\W(+)")
+    end
+    x
+  end.reverse
+end
+puts mapped.join
