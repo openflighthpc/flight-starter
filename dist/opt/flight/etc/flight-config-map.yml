@@ -3,3 +3,7 @@ cluster:
   name:
     var: 'flight_STARTER_cluster_name'
     file: 'flight-starter'
+pdsh:
+  priority:
+    var: 'flight_PDSH_priority'
+    file: 'flight-pdsh'
