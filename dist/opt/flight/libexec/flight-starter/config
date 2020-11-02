@@ -124,35 +124,89 @@ def values_from(file)
   end
 end
 
-def set_value_for(meta, v)
-  qchar = v.include?('"') ? "'" : '"'
-  rc_fname = File.join(
-    ENV.fetch('flight_ROOT','/opt/flight'),
-    'etc',
-    "#{meta['file']}.rc"
-  )
-  rc_content =
-    File.read(rc_fname)
-      .gsub!(
-        /^#{meta['var']}=.*/,
-        %(#{meta['var']}=#{qchar}#{v}#{qchar})
-      )
-  File.write(rc_fname, rc_content)
+Updatter = Struct.new(:file) do
+  def set(key, value)
+    ['rc', 'cshrc'].each do |type|
+      regex = build_regex(type, key)
+      entry = build_entry(type, key, value)
+      content = find_content(type)
 
-  cshrc_fname = File.join(
-    ENV.fetch('flight_ROOT','/opt/flight'),
-    'etc',
-    "#{meta['file']}.cshrc"
-  )
-  if File.exist?(cshrc_fname)
-    cshrc_content =
-      File.read(cshrc_fname)
-        .gsub!(
-          /^set #{meta['var']}=.*/,
-          %(set #{meta['var']}=#{qchar}#{v}#{qchar})
-        )
-    File.write(cshrc_fname, cshrc_content)
+      # Replace content matches
+      if regex.match? content
+        content.gsub!(regex, entry)
+
+      # Add new content entries
+      else
+        content.chomp!
+        content.concat("\n", entry)
+      end
+    end
   end
+
+  def save
+    FileUtils.mkdir_p File.dirname(rc_fname)
+    FileUtils.mkdir_p File.dirname(cshrc_fname)
+    File.write(rc_fname, rc_content)
+    File.write(cshrc_fname, cshrc_fname)
+  end
+
+  private
+
+  def build_regex(type,  key)
+    case type
+    when 'rc'
+      /^#{meta['var']}=.*$/
+    when 'cshrc'
+      /^set #{meta['var']}=.*$/
+    end
+  end
+
+  def build_entry(type, key, value)
+    qchar = value.include?('"') ? "'" : '"'
+    case type
+    when 'rc'
+      %(#{key}=#{qchar}#{value}#{qchar})
+    when 'cshrc'
+      %(set #{key}=#{qchar}#{value}#{qchar})
+    end
+  end
+
+  def find_content(type)
+    case type
+    when 'rc'
+      rc_content
+    when 'cshrc'
+      cshrc_content
+    end
+  end
+
+  def rc_content
+    @rc_content ||= File.exists?(rc_fname) ? File.read(rc_fname) : ''
+  end
+
+  def cshrc_content
+    @cshrc_content ||= File.exists?(cshrc_fname) ? File.read(cshrc_fname) : ''
+  end
+
+  def rc_fname
+    @rc_fname ||= File.join(
+      ENV.fetch('flight_ROOT','/opt/flight'),
+      'etc', "#{file}.rc"
+    )
+  end
+
+  def cshrc_fname
+    @cshrc_fname ||= File.join(
+      ENV.fetch('flight_ROOT','/opt/flight'),
+      'etc', "#{file}.cshrc"
+    )
+  end
+end
+
+def set_value_for(meta, v)
+  updatter = Updatter.new(meta[:file])
+  updatter.set(meta['var'], v)
+  updatter.save
   true
 end
 
