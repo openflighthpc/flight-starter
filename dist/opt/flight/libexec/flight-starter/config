@@ -35,7 +35,7 @@ rescue LoadError
   nil
 end
 
-VERSION = '1.0.1'
+VERSION = '1.1.0'
 PROGRAM_NAME = ENV.fetch('FLIGHT_PROGRAM_NAME','config')
 
 def help
@@ -109,21 +109,24 @@ def file_values
 end
 
 def read_values(file)
-  {}.tap do |h|
-    File.readlines(
-      File.join(
-        ENV.fetch('flight_ROOT','/opt/flight'),
-        'etc',
-        "#{file}.rc"
-      )
-    ).each do |l|
-      next if l[0] == '#'
-      k, v = l.chomp.split("=")
-      if v[0] == '"' || v[0] == "'"
-        v = v[1..-2]
+  path = File.join(
+    ENV.fetch('flight_ROOT','/opt/flight'),
+    'etc',
+    "#{file}.rc"
+  )
+  if File.exists? path
+    {}.tap do |h|
+      File.readlines(path).each do |l|
+        next if l[0] == '#'
+        k, v = l.chomp.split("=")
+        if v[0] == '"' || v[0] == "'"
+          v = v[1..-2]
+        end
+        h[k] = v
       end
-      h[k] = v
     end
+  else
+    {}
   end
 end
 
