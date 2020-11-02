@@ -27,6 +27,8 @@
 #==============================================================================
 require 'yaml'
 
+require_relative '../../lib/flight-starter-patches/deep_merge'
+
 begin
   require 'openflight/banner'
 rescue LoadError
