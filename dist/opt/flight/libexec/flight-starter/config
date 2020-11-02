@@ -63,18 +63,27 @@ EOF
 end
 
 def value_map
-  @value_map =
-    begin
-      YAML.load_file(
-        File.join(
-          ENV.fetch('flight_ROOT','/opt/flight'),
-          'etc',
-          'flight-config-map.yml'
-        )
-      )
+  @value_map = value_map_paths.reduce({}) do |memo, file|
+    content = begin
+      YAML.load File.read(file)
     rescue
       {}
     end
+
+    memo.deep_merge(content)
+  end
+end
+
+def value_map_paths
+  @value_map_paths ||= begin
+    base = File.join(
+      ENV.fetch('flight_ROOT','/opt/flight'), 'etc', 'flight-config-map.yml'
+    )
+    glob = File.join(
+      ENV.fetch('flight_ROOT','/opt/flight'), 'etc', 'flight-config-map.d', '*.{yml,yaml}'
+    )
+    [base, *Dir.glob(glob).sort]
+  end
 end
 
 def read_value(k)
