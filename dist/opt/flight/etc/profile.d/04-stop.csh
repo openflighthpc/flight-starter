@@ -25,4 +25,9 @@
 # https://github.com/openflighthpc/flight-starter
 #==============================================================================
 alias flstop 'source "${flight_ROOT}"/libexec/flight-starter/stop.tcsh'
-setenv flight_DEFINES "${flight_DEFINES} flstop"
+
+if ( $?flight_DEFINES ) then
+  setenv flight_DEFINES "${flight_DEFINES} flstop"
+else
+  setenv flight_DEFINES "flstop"
+endif
