@@ -37,7 +37,7 @@ rescue LoadError
   nil
 end
 
-VERSION = '1.1.0~rc1'
+VERSION = '1.1.0~rc2'
 PROGRAM_NAME = ENV.fetch('FLIGHT_PROGRAM_NAME','config')
 
 def help
@@ -78,13 +78,10 @@ end
 
 def value_map_paths
   @value_map_paths ||= begin
-    base = File.join(
-      ENV.fetch('flight_ROOT','/opt/flight'), 'etc', 'flight-config-map.yml'
-    )
     glob = File.join(
       ENV.fetch('flight_ROOT','/opt/flight'), 'etc', 'flight-config-map.d', '*.{yml,yaml}'
     )
-    [base, *Dir.glob(glob).sort]
+    Dir.glob(glob).sort
   end
 end
 
