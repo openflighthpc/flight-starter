@@ -27,10 +27,10 @@
 
 function warn_locale() {
   cat <<EOF >&2
-# Your locale appears to be set inconsistently or does not use unicode.
-# This could cause various application to break unexpectedly.
+# Your locale appears to be set inconsistently or does not use Unicode.
+# This could cause various applications to break unexpectedly.
 
-# Run the following commands to set the locale to unicode:
+# Run the following commands to set the locale to Unicode:
 $(printf "${flight_LOCALE_cmds:-export LANG=en_US.utf8\nexport LC_ALL=en_US.utf8}")
 
 # Alternatively, any locale in this list can be used:
