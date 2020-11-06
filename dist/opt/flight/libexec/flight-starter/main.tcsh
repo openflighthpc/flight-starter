@@ -46,7 +46,6 @@ if ( "$fd_command" == "start" ) then
        set flight_STARTER_always disabled
     endif
     if ( "${flight_STARTER_always}" != "enabled" ) then
-      echo
       echo "${flight_STARTER_product} is now active."
     endif
   else

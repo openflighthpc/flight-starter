@@ -27,7 +27,6 @@
 
 function warn_locale() {
   cat <<EOF >&2
-
 # Your locale appears to be set inconsistently or does not use unicode.
 # This could cause various application to break unexpectedly.
 
@@ -36,6 +35,7 @@ $(printf "${flight_LOCALE_cmds:-export LANG=en_US.utf8\nexport LC_ALL=en_US.utf8
 
 # Alternatively, any locale in this list can be used:
 locale -a | grep -i UTF8
+
 EOF
 }
 

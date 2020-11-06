@@ -73,11 +73,11 @@ EOF
       echo >> "${flight_SSH_DIR}"/config
       echo "$existing_config" >> "${flight_SSH_DIR}"/config
       cat <<WARN >&2
-
 Your SSH config has been modified to use the generated identity file.
 Please review the config if you experience issues with SSH.
 SSH Config:    ${flight_SSH_DIR}/config
 Identity File: ${flight_SSH_DIR}/${flight_SSH_KEYNAME}
+
 WARN
     fi
     chmod 600 "${flight_SSH_DIR}"/config
@@ -92,9 +92,11 @@ main() {
             echo -n "Authorizing key: "
             if enable_key >> "${flight_SSH_LOG}"; then
                 echo 'OK'
+                echo
                 new_config >> "${flight_SSH_LOG}"
             else
                 echo 'FAIL'
+                echo
             fi
         else
             echo 'FAIL'
