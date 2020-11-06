@@ -29,4 +29,6 @@ if ( ! $?flight_ROOT ) then
   setenv flight_ROOT /opt/flight
 endif
 
-bash --norc --noprofile $flight_ROOT/etc/profile.d/05-locale-check.sh "setenv LANG en_US.utf8\nsetenv LC_ALL en_US.utf8"
+setenv flight_LOCALE_cmds "setenv LANG en_US.utf8\nsetenv LC_ALL en_US.utf8"
+bash --norc --noprofile $flight_ROOT/etc/profile.d/05-locale-check.sh
+unsetenv flight_LOCALE_cmds

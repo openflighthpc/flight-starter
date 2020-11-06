@@ -25,17 +25,14 @@
 # https://github.com/openflighthpc/flight-starter
 #==============================================================================
 
-# Checks if all the LC_* variables are set to the same value
-# NOTE: The LC_* vars often have different quotes and capitalizations.
-#       These differences are ignored, but as a result empty strings are lost
-
 function warn_locale() {
+  local cmds=${flight_LOCALE_cmds:-"export LANG=en_US.utf8\nexport LC_ALL=en_US.utf8"}
   cat <<EOF >&2
 # Your locale appears to be set inconsistently or does not use unicode.
 # This could cause various application to break unexpectedly.
 
 # Run the following commands to set the locale to unicode:
-$(printf "$1")
+$(printf "$cmds")
 
 # Alternatively, any locale in this list can be used:
 locale -a | grep -i UTF8
@@ -49,7 +46,7 @@ function check_locale() {
     if [ $(echo "$var" | cut -d= -f1) == 'LC_ALL' ]; then
       continue
     elif [ -z "$(echo "$var" | cut -d= -f2)" ]; then
-      warn_locale "$1"
+      warn_locale
       return
     fi
   done
@@ -66,22 +63,18 @@ function check_locale() {
   local list
   list=$(locale | cut -d= -f2 | xargs -n1 echo | sort | uniq -i)
   if [ "$(echo "$list" | wc -l)" != "1" ]; then
-    warn_locale "$1"
+    warn_locale
     return
   fi
 
   # Checks that unicode is being used
   if ! echo "$list" | grep -i -E utf-?8 >/dev/null; then
-    warn_locale "$1"
+    warn_locale
     return
   fi
 }
 
-if [ "$1" ]; then
-  check_locale "$1"
-else
-  check_locale "export LANG=en_US.utf8\nexport LC_ALL=en_US.utf8"
-fi
+check_locale
 
 unset -f warn_locale
 unset -f check_locale
