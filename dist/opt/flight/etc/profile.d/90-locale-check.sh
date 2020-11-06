@@ -68,7 +68,7 @@ function check_locale() {
   fi
 
   # Checks that unicode is being used
-  if ! echo "$list" | grep -i -E utf-?8 >/dev/null; then
+  if ! echo "$list" | grep -i -E "utf-?8" >/dev/null; then
     warn_locale
     return
   fi
