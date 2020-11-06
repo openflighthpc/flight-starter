@@ -42,6 +42,7 @@ if [ "$1" == "start" ]; then
       . "$HOME"/.config/flight/settings.rc
     fi
     if [ "${flight_STARTER_always:-disabled}" != "enabled" ]; then
+      echo
       echo "${flight_STARTER_product} is now active."
     fi
   else

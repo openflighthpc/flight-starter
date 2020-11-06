@@ -27,6 +27,7 @@
 
 function warn_locale() {
   cat <<EOF >&2
+
 # Your locale appears to be set inconsistently or does not use unicode.
 # This could cause various application to break unexpectedly.
 
