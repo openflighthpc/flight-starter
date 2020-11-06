@@ -57,12 +57,29 @@ enable_key() {
 }
 
 new_config() {
-    echo "CREATING CONFIG"
-    cat << EOF >> "${flight_SSH_DIR}"/config
+    local existing_config=""
+    if [ -f "${flight_SSH_DIR}/config" ]; then
+        echo "UPDATING CONFIG"
+        existing_config=$(cat "${flight_SSH_DIR}/config")
+    else
+        echo "CREATING CONFIG"
+    fi
+    cat << EOF > "${flight_SSH_DIR}"/config
 Host *
   IdentityFile ${flight_SSH_DIR}/${flight_SSH_KEYNAME}
   StrictHostKeyChecking  no
 EOF
+    if [ -n "$existing_config" ]; then
+      echo >> "${flight_SSH_DIR}"/config
+      echo "$existing_config" >> "${flight_SSH_DIR}"/config
+      cat <<WARN >&2
+
+Your SSH config has been modified to use the generated identity file.
+Please review the config if you experience issues with SSH.
+SSH Config:    ${flight_SSH_DIR}/config
+Identity File: ${flight_SSH_DIR}/${flight_SSH_KEYNAME}
+WARN
+    fi
     chmod 600 "${flight_SSH_DIR}"/config
 }
 
