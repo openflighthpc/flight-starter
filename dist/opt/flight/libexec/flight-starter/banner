@@ -78,7 +78,7 @@ EOF
 }
 
 static_frame() {
-  if [[ "$TERM" != "xterm"* ]]; then
+  if [[ ! ( "$TERM" == "xterm"* || "$TERM" == "screen"* ) ]]; then
     plain_static_frame
     exit
   fi
@@ -144,7 +144,7 @@ fi
 if [ "${flight_STARTER_force_animate_banner}" != "true" -a "${flight_STARTER_static_banner:-false}" == "true" ]; then
   static_frame
   exit
-elif [[ "$TERM" != "xterm"* ]]; then
+elif [[ ! ( "$TERM" == "xterm"* || "$TERM" == "screen"* ) ]]; then
   plain_static_frame
   exit
 fi
