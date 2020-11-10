@@ -27,7 +27,7 @@
 (
   bold="$(tput bold)"
   clr="$(tput sgr0)"
-  if [[ $TERM == "xterm-256color" ]]; then
+  if [[ $TERM =~ "256color" ]]; then
     white="$(tput setaf 7)"
     bgblue="$(tput setab 68)"
   fi

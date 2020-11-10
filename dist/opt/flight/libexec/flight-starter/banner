@@ -29,8 +29,8 @@ cluster=$1
 version=$2
 distro=$3
 
-c_version="[1;37;40m${version:-OpenFlight r2020.2}[0m"
-j_version="${version:-OpenFlight r2020.2}"
+c_version="[1;37;40m${version:-OpenFlight r2020.3}[0m"
+j_version="${version:-OpenFlight r2020.3}"
 if [ "$distro" ]; then
   c_distro="[1;37;40mBased on $distro[0m"
   j_distro="Based on $distro"
@@ -58,6 +58,8 @@ frame() {
             -e "s#%1%#${c1}#g" \
             -e "s#%2%#${c2}#g" \
             -e "s#%3%#${c3}#g"
+  # Reset all attributes.
+  echo -e '\e[0m'
 }
 
 plain_static_frame() {
@@ -78,7 +80,7 @@ EOF
 }
 
 static_frame() {
-  if [[ "$TERM" != "xterm"* ]]; then
+  if [[ ! ( "$TERM" == "xterm"* || "$TERM" == "screen"* ) ]]; then
     plain_static_frame
     exit
   fi
@@ -144,7 +146,7 @@ fi
 if [ "${flight_STARTER_force_animate_banner}" != "true" -a "${flight_STARTER_static_banner:-false}" == "true" ]; then
   static_frame
   exit
-elif [[ "$TERM" != "xterm"* ]]; then
+elif [[ ! ( "$TERM" == "xterm"* || "$TERM" == "screen"* ) ]]; then
   plain_static_frame
   exit
 fi

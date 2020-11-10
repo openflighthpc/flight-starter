@@ -57,13 +57,36 @@ enable_key() {
 }
 
 new_config() {
-    echo "CREATING CONFIG"
-    cat << EOF >> "${flight_SSH_DIR}"/config
+    local updating_config
+    if [ -f "${flight_SSH_DIR}/config" ]; then
+        echo "UPDATING CONFIG"
+        updating_config=true
+    else
+        echo "CREATING CONFIG"
+        updating_config=false
+    fi
+    # Add the new configuration to the top of the file (if it exists).  The
+    # standard unix tools make that a pain to accomplish without resorting to
+    # temp files or partially writting out the config.  So we use `ex`.  It's
+    # part of the posix.
+    ex "${flight_SSH_DIR}/config" <<EOF
+1 insert
 Host *
   IdentityFile ${flight_SSH_DIR}/${flight_SSH_KEYNAME}
   StrictHostKeyChecking  no
+.
+xit
 EOF
     chmod 600 "${flight_SSH_DIR}"/config
+    if [ "${updating_config}" == true ] ; then
+        cat <<WARN >&2
+Your SSH config has been modified to use the generated identity file.
+Please review the config if you experience issues with SSH.
+SSH Config:    ${flight_SSH_DIR}/config
+Identity File: ${flight_SSH_DIR}/${flight_SSH_KEYNAME}
+
+WARN
+    fi
 }
 
 main() {
@@ -75,9 +98,11 @@ main() {
             echo -n "Authorizing key: "
             if enable_key >> "${flight_SSH_LOG}"; then
                 echo 'OK'
+                echo
                 new_config >> "${flight_SSH_LOG}"
             else
                 echo 'FAIL'
+                echo
             fi
         else
             echo 'FAIL'
