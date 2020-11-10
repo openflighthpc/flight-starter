@@ -1,5 +1,5 @@
 #==============================================================================
-# Copyright (C) 2019-present Alces Flight Ltd.
+# Copyright (C) 2020-present Alces Flight Ltd.
 #
 # This file is part of Flight Starter.
 #
@@ -24,9 +24,11 @@
 # For more information on Flight Starter, please visit:
 # https://github.com/openflighthpc/flight-starter
 #==============================================================================
-flight_STARTER_cluster_name="your cluster"
-flight_STARTER_desc="an OpenFlight HPC environment"
-flight_STARTER_product="OpenFlight"
-flight_STARTER_release="r2020.3"
-flight_STARTER_banner='${bwhite}OpenFlightHPC'
-flight_STARTER_help_url="https://docs.openflighthpc.org/"
+
+if ( ! $?flight_ROOT ) then
+  setenv flight_ROOT /opt/flight
+endif
+
+setenv flight_LOCALE_cmds "setenv LANG en_US.utf8\nsetenv LC_ALL en_US.utf8"
+bash --norc --noprofile $flight_ROOT/etc/profile.d/90-locale-check.sh
+unsetenv flight_LOCALE_cmds

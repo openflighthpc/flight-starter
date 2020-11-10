@@ -1,8 +1,8 @@
 #!/usr/bin/env ruby
 #==============================================================================
-# Copyright (C) 2019-present Alces Flight Ltd.
+# Copyright (C) 2020-present Alces Flight Ltd.
 #
-# This file is part of Flight Diagnostics.
+# This file is part of Flight Starter.
 #
 # This program and the accompanying materials are made available under
 # the terms of the Eclipse Public License 2.0 which is available at
@@ -10,7 +10,7 @@
 # terms made available by Alces Flight Ltd - please direct inquiries
 # about licensing to licensing@alces-flight.com.
 #
-# Flight Diagnostics is distributed in the hope that it will be useful, but
+# Flight Starter is distributed in the hope that it will be useful, but
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, EITHER EXPRESS OR
 # IMPLIED INCLUDING, WITHOUT LIMITATION, ANY WARRANTIES OR CONDITIONS
 # OF TITLE, NON-INFRINGEMENT, MERCHANTABILITY OR FITNESS FOR A
@@ -18,14 +18,18 @@
 # details.
 #
 # You should have received a copy of the Eclipse Public License 2.0
-# along with Flight Diagnostics. If not, see:
+# along with Flight Starter. If not, see:
 #
 #  https://opensource.org/licenses/EPL-2.0
 #
-# For more information on <project>, please visit:
-# https://github.com/alces-flight/flight-diag
+# For more information on Flight Starter, please visit:
+# https://github.com/openflighthpc/flight-starter
 #==============================================================================
+
+require 'fileutils'
 require 'yaml'
+
+require_relative '../../lib/flight-starter-patches/deep_merge'
 
 begin
   require 'openflight/banner'
@@ -33,7 +37,7 @@ rescue LoadError
   nil
 end
 
-VERSION = '1.0.1'
+VERSION = '1.1.0~rc2'
 PROGRAM_NAME = ENV.fetch('FLIGHT_PROGRAM_NAME','config')
 
 def help
@@ -61,18 +65,24 @@ EOF
 end
 
 def value_map
-  @value_map =
-    begin
-      YAML.load_file(
-        File.join(
-          ENV.fetch('flight_ROOT','/opt/flight'),
-          'etc',
-          'flight-config-map.yml'
-        )
-      )
+  @value_map = value_map_paths.reduce({}) do |memo, file|
+    content = begin
+      YAML.load File.read(file)
     rescue
       {}
     end
+
+    memo.deep_merge(content)
+  end
+end
+
+def value_map_paths
+  @value_map_paths ||= begin
+    glob = File.join(
+      ENV.fetch('flight_ROOT','/opt/flight'), 'etc', 'flight-config-map.d', '*.{yml,yaml}'
+    )
+    Dir.glob(glob).sort
+  end
 end
 
 def read_value(k)
@@ -98,21 +108,24 @@ def file_values
 end
 
 def read_values(file)
-  {}.tap do |h|
-    File.readlines(
-      File.join(
-        ENV.fetch('flight_ROOT','/opt/flight'),
-        'etc',
-        "#{file}.rc"
-      )
-    ).each do |l|
-      next if l[0] == '#'
-      k, v = l.chomp.split("=")
-      if v[0] == '"' || v[0] == "'"
-        v = v[1..-2]
+  path = File.join(
+    ENV.fetch('flight_ROOT','/opt/flight'),
+    'etc',
+    "#{file}.rc"
+  )
+  if File.exists? path
+    {}.tap do |h|
+      File.readlines(path).each do |l|
+        next if ["#", "\n"].include?(l[0])
+        k, v = l.chomp.split("=")
+        if v[0] == '"' || v[0] == "'"
+          v = v[1..-2]
+        end
+        h[k] = v
       end
-      h[k] = v
     end
+  else
+    {}
   end
 end
 
@@ -124,35 +137,81 @@ def values_from(file)
   end
 end
 
-def set_value_for(meta, v)
-  qchar = v.include?('"') ? "'" : '"'
-  rc_fname = File.join(
-    ENV.fetch('flight_ROOT','/opt/flight'),
-    'etc',
-    "#{meta['file']}.rc"
-  )
-  rc_content =
-    File.read(rc_fname)
-      .gsub!(
-        /^#{meta['var']}=.*/,
-        %(#{meta['var']}=#{qchar}#{v}#{qchar})
-      )
-  File.write(rc_fname, rc_content)
+Updatter = Struct.new(:file) do
+  def []=(key, value)
+    ['rc', 'cshrc'].each do |type|
+      regex = build_regex(type, key)
+      entry = build_entry(type, key, value)
+      content = contents[type]
 
-  cshrc_fname = File.join(
-    ENV.fetch('flight_ROOT','/opt/flight'),
-    'etc',
-    "#{meta['file']}.cshrc"
-  )
-  if File.exist?(cshrc_fname)
-    cshrc_content =
-      File.read(cshrc_fname)
-        .gsub!(
-          /^set #{meta['var']}=.*/,
-          %(set #{meta['var']}=#{qchar}#{v}#{qchar})
-        )
-    File.write(cshrc_fname, cshrc_content)
+      # Replace content matches
+      if regex.match? content
+        content.gsub!(regex, entry)
+
+      # Add new content entries
+      else
+        content.chomp!
+        content.concat("\n", entry, "\n")
+      end
+    end
   end
+
+  def save
+    ['rc', 'cshrc'].each do |type|
+      path = fnames[type]
+      FileUtils.mkdir_p File.dirname(path)
+      File.write(path, contents[type])
+    end
+  end
+
+  private
+
+  def build_regex(type,  key)
+    case type
+    when 'rc'
+      /^#{key}=.*$/
+    when 'cshrc'
+      /^set #{key}=.*$/
+    else
+      raise NotImplementedError
+    end
+  end
+
+  def build_entry(type, key, value)
+    qchar = value.include?('"') ? "'" : '"'
+    case type
+    when 'rc'
+      %(#{key}=#{qchar}#{value}#{qchar})
+    when 'cshrc'
+      %(set #{key}=#{qchar}#{value}#{qchar})
+    else
+      raise NotImplementedError
+    end
+  end
+
+  def contents
+    @contents ||= Hash.new do |h, ext|
+      path = fnames[ext]
+      if File.exists? path
+        h[ext] = File.read(path)
+      else
+        h[ext] = ''
+      end
+    end
+  end
+
+  def fnames
+    @fnames ||= Hash.new do |h, ext|
+      root = ENV.fetch('flight_ROOT', '/opt/flight')
+      h[ext] = File.join(root, 'etc', "#{file}.#{ext}")
+    end
+  end
+end
+
+def set_value_for(meta, v)
+  updatter = Updatter.new(meta['file'])
+  updatter[meta['var']] = v
+  updatter.save
   true
 end
 
