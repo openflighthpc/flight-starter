@@ -58,6 +58,8 @@ frame() {
             -e "s#%1%#${c1}#g" \
             -e "s#%2%#${c2}#g" \
             -e "s#%3%#${c3}#g"
+  # Reset all attributes.
+  echo -e '\e[0m'
 }
 
 plain_static_frame() {
