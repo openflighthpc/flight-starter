@@ -29,6 +29,12 @@ cluster=$1
 version=$2
 distro=$3
 
+reset_attributes() {
+    # Reset all attributes to prevent colours from bleeding into prompt.
+    echo -e '\e[0m'
+}
+trap reset_attributes EXIT
+
 c_version="[1;37;40m${version:-OpenFlight r2020.3}[0m"
 j_version="${version:-OpenFlight r2020.3}"
 if [ "$distro" ]; then
@@ -58,8 +64,6 @@ frame() {
             -e "s#%1%#${c1}#g" \
             -e "s#%2%#${c2}#g" \
             -e "s#%3%#${c3}#g"
-  # Reset all attributes.
-  echo -e '\e[0m'
 }
 
 plain_static_frame() {
@@ -116,8 +120,10 @@ cleanup() {
   stty "$oldstty"
   if [ "$1" == "force" ]; then
     final_frame
+    reset_attributes
     exit
   fi
+  reset_attributes
 }
 
 if [ -f "$HOME/.config/flight/settings.rc" ]; then
