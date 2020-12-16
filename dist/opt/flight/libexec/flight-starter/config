@@ -37,7 +37,7 @@ rescue LoadError
   nil
 end
 
-VERSION = '1.1.0~rc2'
+VERSION = '1.1.0'
 PROGRAM_NAME = ENV.fetch('FLIGHT_PROGRAM_NAME','config')
 
 def help
