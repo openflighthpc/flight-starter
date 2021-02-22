@@ -27,6 +27,6 @@
 flight_STARTER_cluster_name="your cluster"
 flight_STARTER_desc="an OpenFlight HPC environment"
 flight_STARTER_product="OpenFlight"
-flight_STARTER_release="r2020.3"
+flight_STARTER_release="r2021.1"
 flight_STARTER_banner='${bwhite}OpenFlightHPC'
 flight_STARTER_help_url="https://docs.openflighthpc.org/"
