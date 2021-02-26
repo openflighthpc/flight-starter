@@ -1,4 +1,5 @@
 #!/bin/bash
+# vim: set ts=4 sw=4:
 #==============================================================================
 # Copyright (C) 2019-present Alces Flight Ltd.
 #
@@ -26,6 +27,7 @@
 # https://github.com/openflighthpc/flight-starter
 #==============================================================================
 is_target_user() {
+    local u
     if [ ${flight_SSH_LOWEST_UID} -gt ${UID} ]; then
         return 1
     fi
@@ -89,24 +91,51 @@ WARN
     fi
 }
 
+import_keys() {
+    local file key keys_file
+    keys_file="${flight_SSH_DIR}"/authorized_keys
+
+    # Ensure the authorized_keys file exists
+    if ! [ -f "$keys_file" ]; then
+        mkdir -p $(dirname "$keys_file")
+        touch "$keys_file"
+    fi
+
+    # Ensure each key is within that file
+    for file in "$flight_ROOT"/etc/ssh/authorized_keys.d/*; do
+        # Ensure there is a matching file not the non-matching glob string
+        [ -e "$file" ] || continue
+        key=$(cat "$file")
+        if ! grep -Fxq "$key" "$keys_file"; then
+            echo "$key" >> "$keys_file"
+        fi
+    done
+}
+
 main() {
-    if is_target_user && ! has_existing_key; then
-        mkdir -p "$(dirname "${flight_SSH_LOG}")"
-        echo -n "Generating SSH keypair: "
-        if create_key >> "${flight_SSH_LOG}"; then
-            echo 'OK'
-            echo -n "Authorizing key: "
-            if enable_key >> "${flight_SSH_LOG}"; then
+    if is_target_user; then
+        # Generate a new key-pair
+        if ! has_existing_key; then
+            mkdir -p "$(dirname "${flight_SSH_LOG}")"
+            echo -n "Generating SSH keypair: "
+            if create_key >> "${flight_SSH_LOG}"; then
                 echo 'OK'
-                echo
-                new_config >> "${flight_SSH_LOG}"
+                echo -n "Authorizing key: "
+                if enable_key >> "${flight_SSH_LOG}"; then
+                    echo 'OK'
+                    echo
+                    new_config >> "${flight_SSH_LOG}"
+                else
+                    echo 'FAIL'
+                    echo
+                fi
             else
                 echo 'FAIL'
-                echo
             fi
-        else
-            echo 'FAIL'
         fi
+
+        # Import existing public keys
+        import_keys
     fi
 }
 
