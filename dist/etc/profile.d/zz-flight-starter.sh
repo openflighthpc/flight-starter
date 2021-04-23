@@ -59,6 +59,7 @@ if [ "$(type -t flight)" != "function" ]; then
 fi
 
 source "${flight_ROOT}"/libexec/flight-starter/bootstrap.sh
+source "${flight_ROOT}/libexec/flight-starter/locale-check.sh"
 
 if [ "${_nounset_set}" == "true" ]; then
   set -u
