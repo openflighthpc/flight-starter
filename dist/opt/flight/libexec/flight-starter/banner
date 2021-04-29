@@ -35,8 +35,8 @@ reset_attributes() {
 }
 trap reset_attributes EXIT
 
-c_version="[1;37;40m${version:-OpenFlight r2021.2}[0m"
-j_version="${version:-OpenFlight r2021.2}"
+c_version="[1;37;40m${version:-OpenFlight r2021.3}[0m"
+j_version="${version:-OpenFlight r2021.3}"
 if [ "$distro" ]; then
   c_distro="[1;37;40mBased on $distro[0m"
   j_distro="Based on $distro"
