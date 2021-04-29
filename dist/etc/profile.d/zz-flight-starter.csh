@@ -55,6 +55,7 @@ if ($?tcsh) then
     alias flight $prefix'set args="'$histchar'*";source ${flight_ROOT}/libexec/flight-starter/main.tcsh; '$postfix;
     unset prefix postfix
     source ${flight_ROOT}/libexec/flight-starter/bootstrap.tcsh
+    source "${flight_ROOT}/libexec/flight-starter/locale-check.csh"
     unsetenv flight_SYSTEM_start
   else
     set args="start"
