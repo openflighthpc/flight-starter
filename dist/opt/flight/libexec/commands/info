@@ -55,7 +55,16 @@ setup() {
 emit_doc() {
   bold="$(tput bold)"
   green="$(tput setaf 2)"
-  clr="$(tput sgr0)"
+
+  # 'less' has special handling for ANSI control sequences so it "just works".
+  # This causes 'tput sgr0' to render incorrectly in some TERM settings.
+  # Instead, the default SGR ANSI escape sequcence can be used
+  if [[ "$PAGER" == "less" ]] || [[ -z "$PAGER" ]] ; then
+    clr=$(printf "\E[;10m")
+  else
+    clr="$(tput sgr0)"
+  fi
+
   if [[ $TERM =~ "256color" ]]; then
     white="$(tput setaf 7)"
     bgblue="$(tput setab 68)"
