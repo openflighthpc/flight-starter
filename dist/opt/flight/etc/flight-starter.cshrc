@@ -27,6 +27,6 @@
 set flight_STARTER_cluster_name="your cluster"
 set flight_STARTER_desc="an OpenFlight HPC environment"
 set flight_STARTER_product="OpenFlight"
-set flight_STARTER_release="r2021.5~rc1"
+set flight_STARTER_release="r2021.5"
 set flight_STARTER_banner='${bwhite}OpenFlightHPC'
 set flight_STARTER_help_url="https://docs.openflighthpc.org/"
