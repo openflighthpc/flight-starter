@@ -45,5 +45,12 @@ if [ "${name}" != "your cluster" ] && ! echo "$PS1" | grep -q "$name"; then
   )"
 fi
 
+# add activation hint to prompt terminator
+if [[ "$TERM" =~ 256color ]]; then
+    PS1="$(echo "$PS1" | sed 's/\\\$/\\[\\e[38;2;174;225;249m\\]\\$\\[\\e[0m\\]/')"
+else
+    PS1="$(echo "$PS1" | sed 's/\\\$/\\[\\e[1;34m\\]\\$\\[\\e[0m\\]/')"
+fi
+
 unset name
 unset $(declare | grep ^flight_STARTER | cut -f1 -d= | xargs)

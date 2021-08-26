@@ -72,6 +72,16 @@ if ( "$name" != "your cluster" ) then
       rm -f $tmpf
       unset last src_el tgt_el tmpf
     endif
+    # add activation hint to prompt terminator
+    set tmpf=`mktemp /tmp/03-prompt.csh.XXXXXX`
+    if ( $term =~ *256color ) then
+      echo 'set prompt="'"$prompt"'"' | sed -re 's/%?#/%{\\033[38;2;174;225;249m%}%#%{\\033[0m%}/' > $tmpf
+    else
+      echo 'set prompt="'"$prompt"'"' | sed -re 's/%?#/%{\\033[1;34m%}%#%{\\033[0m%}/' > $tmpf
+    endif
+    source $tmpf
+    rm -f $tmpf
+    unset tmpf
     # If none of the above elements exist, we leave the prompt unchanged.
   endif
 endif
