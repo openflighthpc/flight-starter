@@ -39,6 +39,7 @@ end
 
 VERSION = '1.1.0'
 PROGRAM_NAME = ENV.fetch('FLIGHT_PROGRAM_NAME','config')
+UNKNOWN_SETTING = {}.freeze
 
 def help
   begin
@@ -90,7 +91,7 @@ def read_value(k)
   if meta = (value_map[category][key] rescue nil)
     get_value_for(meta)
   else
-    nil
+    UNKNOWN_SETTING
   end
 end
 
@@ -235,12 +236,15 @@ def process(args)
     true
   when 'get'
     if args[1].nil?
-      $stderr.puts "#{PROGRAM_NAME}: unknown setting: '#{args[1]}'"
-    elsif val = read_value(args[1])
-      puts val
-      true
+      $stderr.puts "#{PROGRAM_NAME}: setting not given"
     else
-      $stderr.puts "#{PROGRAM_NAME}: unknown setting: '#{args[1]}'"
+      val = read_value(args[1])
+      if val == UNKNOWN_SETTING
+        $stderr.puts "#{PROGRAM_NAME}: unknown setting: '#{args[1]}'"
+      else
+        puts val unless val.nil?
+        true
+      end
     end
   when 'set'
     if set_value(args[1],args[2])
