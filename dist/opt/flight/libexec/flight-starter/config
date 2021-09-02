@@ -37,7 +37,7 @@ rescue LoadError
   nil
 end
 
-VERSION = '1.1.0'
+VERSION = '2.0.0'
 PROGRAM_NAME = ENV.fetch('FLIGHT_PROGRAM_NAME','config')
 UNKNOWN_SETTING = {}.freeze
 
@@ -56,6 +56,10 @@ Commands:
   get                  Get a value
   list                 List configured values
   set                  Set a value
+
+Global options:
+
+  --version            Display version information
 
 For more help on a particular command run:
   #{PROGRAM_NAME} help COMMAND
@@ -231,6 +235,9 @@ end
 def process(args)
   cmd = args[0]
   case cmd
+  when 'version', '--version'
+    puts "#{PROGRAM_NAME} v#{VERSION}"
+    true
   when 'help'
     help
     true
