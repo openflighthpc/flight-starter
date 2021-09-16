@@ -32,7 +32,7 @@ if ( "$fd_command" == "start" ) then
   if (! $?flight_DEFINES) then
      setenv flight_DEFINES_exits ""
      setenv flight_DEFINES "flight_ACTIVE"
-     setenv flight_DEFINES_paths ""
+     set flight_DEFINES_paths = " "
   endif
   if ($?prompt) then
     source ${flight_ROOT}/opt/runway/dist/etc/profile.d/alces-flight.csh

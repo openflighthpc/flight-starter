@@ -32,8 +32,10 @@ end
 unset rvar
 unsetenv flight_DEFINES_exits
 
+setenv flight_DEFINES_paths $flight_DEFINES_paths
 set path = `bash -c 'source ${flight_ROOT}/libexec/flight-starter/strip-path.sh; echo $PATH'`
 unsetenv flight_DEFINES_paths
+unset flight_DEFINES_paths
 
 foreach evar (${flight_DEFINES})
   unsetenv $evar
