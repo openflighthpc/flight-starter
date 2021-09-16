@@ -30,7 +30,14 @@ if [ "$1" == "start" ]; then
   if [ -z "${flight_DEFINES}" ]; then
     flight_DEFINES=(flight_ACTIVE)
     flight_DEFINES_exits=()
-    flight_DEFINES_paths=()
+    flight_DEFINES_paths=""
+    # NOTE: The "export flight_DEFINES" and "export flight_DEFINES_exists"
+    # does not work as bash cannot export arrays.
+    #
+    # The broken exports are being maintained for reference, one of the
+    # following should be done:
+    # * Update the relevant calls to use a string, or
+    # * Remove the exports
     export flight_DEFINES flight_DEFINES_exits flight_DEFINES_paths
   fi
   if [ "${-#*i}" != "$-" ]; then
