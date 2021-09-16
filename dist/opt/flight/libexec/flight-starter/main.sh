@@ -30,7 +30,8 @@ if [ "$1" == "start" ]; then
   if [ -z "${flight_DEFINES}" ]; then
     flight_DEFINES=(flight_ACTIVE)
     flight_DEFINES_exits=()
-    export flight_DEFINES flight_DEFINES_exits
+    flight_DEFINES_paths=()
+    export flight_DEFINES flight_DEFINES_exits flight_DEFINES_paths
   fi
   if [ "${-#*i}" != "$-" ]; then
     . ${flight_ROOT}/opt/runway/dist/etc/profile.d/alces-flight.sh

@@ -1,3 +1,4 @@
+#!/bin/bash
 #==============================================================================
 # Copyright (C) 2020-present Alces Flight Ltd.
 #
@@ -24,27 +25,21 @@
 # For more information on Flight Starter, please visit:
 # https://github.com/openflighthpc/flight-starter
 #==============================================================================
-source ${flight_ROOT}/etc/flight-starter.rc
 
-for a in "${flight_DEFINES_exits[@]}"; do
-  $a
-done
-unset flight_DEFINES_exits
-
-source "${flight_ROOT}/libexec/flight-starter/strip-path.sh"
-
-for a in "${flight_DEFINES[@]}"; do
-  unset $a
-done
-unset flight_DEFINES a
-
-flight() {
-  source "${flight_ROOT}"/libexec/flight-starter/main.sh "$@"
+function __flight_STARTER_strip_path {
+  local p
+  local original_path="$PATH"
+  for p in "${@}"; do
+    PATH=$(echo "$PATH" | sed "s#:$p:#:#g")
+    PATH=$(echo "$PATH" | sed "s#^$p:##")
+    PATH=$(echo "$PATH" | sed "s#:$p\$##")
+  done
+  if [ "$original_path" != "$PATH" ]; then
+    __flight_STARTER_strip_path "${@}"
+  fi
 }
-export -f flight
 
-if [ "${-#*i}" != "$-" ]; then
-  echo "${flight_STARTER_product} is now inactive." 1>&2
-fi
-
-unset $(declare | grep ^flight_STARTER | cut -f1 -d= | xargs)
+flight_DEFINES_paths=${flight_DEFINES_paths:-""}
+__flight_STARTER_strip_path $flight_DEFINES_paths
+unset __flight_STARTER_strip_path
+unset flight_DEFINES_paths
