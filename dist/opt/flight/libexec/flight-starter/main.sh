@@ -28,9 +28,7 @@ source ${flight_ROOT}/etc/flight-starter.rc
 
 if [ "$1" == "start" ]; then
   if [ -z "${flight_DEFINES}" ]; then
-    flight_DEFINES=(flight_ACTIVE)
-    flight_DEFINES_exits=()
-    export flight_DEFINES flight_DEFINES_exits
+    source ${flight_ROOT}/libexec/flight-starter/functions.sh
   fi
   if [ "${-#*i}" != "$-" ]; then
     . ${flight_ROOT}/opt/runway/dist/etc/profile.d/alces-flight.sh
