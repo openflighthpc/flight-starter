@@ -1,5 +1,5 @@
 #==============================================================================
-# Copyright (C) 2019-present Alces Flight Ltd.
+# Copyright (C) 2021-present Alces Flight Ltd.
 #
 # This file is part of Flight Starter.
 #
@@ -24,41 +24,7 @@
 # For more information on Flight Starter, please visit:
 # https://github.com/openflighthpc/flight-starter
 #==============================================================================
-if ($?tcsh) then
-  if ( ! $?flight_ROOT ) then
-    setenv flight_ROOT /opt/flight
-  endif
 
-  if ( -f /etc/xdg/flight.cshrc ) then
-    source /etc/xdg/flight.cshrc
-  endif
-
-  if ( "$1" == "start" ) then
-    setenv flight_SYSTEM_start true
-  endif
-
-  if ( ! $?flight_ACTIVE ) then
-    set prefix=""
-    set postfix=""
-
-    if ( $?histchars ) then
-      set histchar = `echo $histchars | cut -c1`
-      set _histchars = $histchars
-
-      set prefix  = 'unset histchars;'
-      set postfix = 'set histchars = $_histchars;'
-    else
-      set histchar = \!
-    endif
-
-    set postfix = "set _exit="'$status'"; $postfix; test 0 = "'$_exit;'
-    alias flight $prefix'set args="'$histchar'*";source ${flight_ROOT}/libexec/flight-starter/main.tcsh; '$postfix;
-    unset prefix postfix
-    source ${flight_ROOT}/libexec/flight-starter/bootstrap.tcsh
-    unsetenv flight_SYSTEM_start
-  else
-    set args="start"
-    source ${flight_ROOT}/libexec/flight-starter/main.tcsh >&/dev/null
-    unset args
-  endif
-endif
+if [[ "$-" == *i* ]] ; then
+    source "${flight_ROOT:-/opt/flight}/libexec/flight-starter/locale-check.sh"
+fi
