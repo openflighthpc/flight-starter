@@ -26,8 +26,9 @@
 #==============================================================================
 
 # General flight_DEFINES_* definitions
-export flight_DEFINES=(flight_ACTIVE flight_HELPER_remove_path)
-export flight_DEFINES_exits=()
+declare -ag flight_DEFINES
+declare -ag flight_DEFINES_exits
+flight_DEFINES+=(flight_ACTIVE flight_HELPER_remove_path)
 
 # Method for calculating a "Complement Set" of the current PATH
 function flight_HELPER_remove_path() {
