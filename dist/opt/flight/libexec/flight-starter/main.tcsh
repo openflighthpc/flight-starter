@@ -30,8 +30,7 @@ source ${flight_ROOT}/etc/flight-starter.cshrc
 
 if ( "$fd_command" == "start" ) then
   if (! $?flight_DEFINES) then
-     setenv flight_DEFINES_exits ""
-     setenv flight_DEFINES "flight_ACTIVE"
+     source "${flight_ROOT}/libexec/flight-starter/functions.tcsh"
   endif
   if ($?prompt) then
     source ${flight_ROOT}/opt/runway/dist/etc/profile.d/alces-flight.csh
