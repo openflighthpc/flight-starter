@@ -26,11 +26,11 @@
 #==============================================================================
 
 # General flight_DEFINES_* definitions
-export flight_DEFINES=(flight_ACTIVE flight_STARTER_remove_path)
+export flight_DEFINES=(flight_ACTIVE flight_HELPER_remove_path)
 export flight_DEFINES_exits=()
 
 # Method for calculating a "Complement Set" of the current PATH
-function flight_STARTER_remove_path() {
+function flight_HELPER_remove_path() {
   # Compute the unsorted complement set
   local new_paths=$(echo "$PATH" | tr : "\n" | sort | uniq)
   local old_paths=$(echo "$1" | tr : "\n" | sort | uniq)

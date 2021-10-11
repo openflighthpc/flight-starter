@@ -27,7 +27,7 @@
 
 # General flight_DEFINES_* definitions
 setenv flight_DEFINES_exits ""
-setenv flight_DEFINES "flight_ACTIVE flight_STARTER_remove_path"
+setenv flight_DEFINES "flight_ACTIVE flight_HELPER_remove_path"
 
-alias flight_STARTER_remove_path bash --noprofile --norc -c \
-  '"source $flight_ROOT/libexec/flight-starter/functions.sh; flight_STARTER_remove_path \!*"'
+alias flight_HELPER_remove_path bash --noprofile --norc -c \
+  '"source $flight_ROOT/libexec/flight-starter/functions.sh; flight_HELPER_remove_path \!*"'
