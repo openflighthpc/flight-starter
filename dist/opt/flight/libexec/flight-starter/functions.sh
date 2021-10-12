@@ -32,9 +32,21 @@ flight_DEFINES+=(flight_ACTIVE flight_HELPER_remove_path)
 
 # Method for calculating a "Complement Set" of the current PATH
 function flight_HELPER_remove_path() {
+  # Checks for the --tcsh flag
+  if [ "$1" == "--tcsh" ]; then
+    local tcsh=true
+    shift
+  else
+    local tcsh=false
+  fi
+
   # Compute the unsorted complement set
   local new_paths=$(echo "$PATH" | tr : "\n" | sort | uniq)
-  local old_paths=$(echo "$1" | tr : "\n" | sort | uniq)
+  if [ "$tcsh" == "true" ]; then
+    local old_paths=$(echo "$@" | tr " " "\n" | sort | uniq)
+  else
+    local old_paths=$(echo "$1" | tr : "\n" | sort | uniq)
+  fi
   local unsorted=$(comm -23 <(echo "$new_paths") <(echo "$old_paths"))
 
   # Convert the unsorted complement into an associative array
@@ -51,7 +63,12 @@ function flight_HELPER_remove_path() {
       sorted="$sorted:$p"
     fi
   done <<< "$PATH:"
+  sorted=$(printf "$sorted" | sed 's/://')
 
   # Return the sorted path
-  printf "$sorted" | sed 's/://'
+  if [ "$tcsh" == "true" ]; then
+    printf "$sorted" | tr : " "
+  else
+    printf "$sorted"
+  fi
 }
