@@ -24,8 +24,8 @@
 # For more information on Flight Starter, please visit:
 # https://github.com/openflighthpc/flight-starter
 #==============================================================================
-cw_SSH_LOWEST_UID=500
-cw_SSH_SKIP_USERS="root"
-cw_SSH_KEYNAME=id_alcescluster
-cw_SSH_DIR="$HOME/.ssh"
-cw_SSH_LOG="$HOME/.cache/flight/setup-sshkey.log"
+flight_SSH_LOWEST_UID=500
+flight_SSH_SKIP_USERS="root"
+flight_SSH_KEYNAME=id_alcescluster
+flight_SSH_DIR="$HOME/.ssh"
+flight_SSH_LOG="$HOME/.cache/flight/setup-sshkey.log"
