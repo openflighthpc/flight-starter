@@ -24,6 +24,10 @@
 # For more information on Flight Starter, please visit:
 # https://github.com/openflighthpc/flight-starter
 #==============================================================================
+if [ -z "$BASH_VERSION" ]; then
+  return
+fi
+
 export flight_ROOT=${flight_ROOT:-/opt/flight}
 # record the value of nounset
 if [ "${-#*u}" != "$-" ]; then
