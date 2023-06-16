@@ -43,7 +43,22 @@ _flight_starter_bootstrap() {
   fi
   unset $(declare | grep ^flight_STARTER | cut -f1 -d= | xargs)
 }
+
+_flight_starter_needs_restart() {
+  if [ ${BASH_VERSINFO[0]} -gt 4 ] ||
+     [ ${BASH_VERSINFO[0]} -eq 4 -a ${BASH_VERSINFO[1]} -gt 3 ] ||
+     [ ${BASH_VERSINFO[0]} -eq 4 -a ${BASH_VERSINFO[1]} -eq 3 -a ${BASH_VERSINFO[2]} -ge 27 ]; then
+    if xargs -n1 -0 -a /proc/self/environ 2>/dev/null | grep -q 'BASH_FUNC_flight()=()' &&
+       ! xargs -n1 -0 -a /proc/self/environ 2>/dev/null | grep -q 'BASH_FUNC_flight%%=()'; then
+      return 0
+    fi
+  fi
+}
+
 if [ "${flight_ACTIVE}" != "true" ]; then
     _flight_starter_bootstrap
+elif _flight_starter_needs_restart; then
+    flight_STARTER_force=true
+    _flight_starter_bootstrap
 fi
-unset _flight_starter_bootstrap
+unset _flight_starter_bootstrap _flight_starter_needs_restart
