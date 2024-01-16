@@ -137,6 +137,16 @@ You may configure the behaviour of ${flight_STARTER_product} on log in to your e
 
      ^flight set always on}
 
+ * To disable ${flight_STARTER_product} command tips in the banner when
+   'always' is set to 'on':
+
+     ^flight set hints off}
+
+ * To enable ${flight_STARTER_product} cluster status in the banner when
+   'always' is set to 'on' (requires flight-profile and flight-hunter):
+
+     ^flight set status on}
+
 You can toggle these settings 'on' or 'off' at any time.
 
 +== Further help ==}
