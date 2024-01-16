@@ -133,8 +133,24 @@ case $action in
   DESCRIPTION:
 
     Set the ${flight_STARTER_product} setting <key> to <value>. Valid
-    keys are 'hints', 'welcome', 'secondary' and 'always'. Valid
+    keys are 'hints', 'welcome', 'secondary', 'always', 'tips' and 'status'. Valid
     values are 'on' and 'off'.
+
+    The keys are as follows: 
+
+      hints         Toggle showing of hints to start/enable ${flight_STARTER_product}
+                    system (when 'always' is off) 
+
+      welcome       Toggle showing of welcome to cluster line (when 'always' is off)
+
+      secondary     Toggle running of ${flight_STARTER_product} on secondary shells
+
+      always        Set whether ${flight_STARTER_product} is activated on login 
+
+      tips          Set ${flight_STARTER_product} sub-command tips (when 'always' is on)
+
+      status        Set showing of ${flight_STARTER_product} cluster status
+                    (when 'always' is on)
 
     Specify '--global' option to make the setting apply system-wide
     (requires superuser access).
@@ -165,6 +181,20 @@ EOF
   secondary|secondar|seconda|second|secon|seco|sec|se|s)
     if set_val 'flight_STARTER_secondary' "$2"; then
       echo "${flight_NAME} set: ${flight_STARTER_product} on secondary shells ${state}."
+    else
+      exit 1
+    fi
+    ;;
+  tips|tip|ti|t)
+    if set_val 'flight_STARTER_tips' "$2"; then
+      echo "${flight_NAME} set: ${flight_STARTER_product} banner tips ${state}."
+    else
+      exit 1
+    fi
+    ;;
+  status|statu|stat|sta|st)
+    if set_val 'flight_STARTER_status' "$2"; then
+      echo "${flight_NAME} set: ${flight_STARTER_product} banner cluster status ${state}."
     else
       exit 1
     fi
