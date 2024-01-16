@@ -35,6 +35,12 @@
     exit
   fi
 
+  # Skip if flight-profile and flight-hunter are not present
+  if ! [[ -f ${flight_ROOT}/libexec/commands/profile && -f ${flight_ROOT}/libexec/commands/hunter ]] ; then
+    echo "Cluster Status: Not showing (Profile & Hunter not found)"
+    exit
+  fi
+
   # Set formatting
   bold="$(tput bold)"
   clr="$(tput sgr0)"
