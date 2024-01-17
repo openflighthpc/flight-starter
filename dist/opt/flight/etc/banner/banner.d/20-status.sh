@@ -27,18 +27,18 @@
 (
   # Only show for users with sudo
   if ! sudo -l -n sudo >/dev/null 2>&1 ; then
-    exit
+    return
   fi
 
   # Don't show unless enabled with 'flight set status on'
   if [[ ${flight_STARTER_status:-'disabled'} != "enabled" ]] ; then
-    exit
+    return
   fi
 
   # Skip if flight-profile and flight-hunter are not present
   if ! [[ -f ${flight_ROOT}/libexec/commands/profile && -f ${flight_ROOT}/libexec/commands/hunter ]] ; then
     echo "Cluster Status: Not showing (Profile & Hunter not found)"
-    exit
+    return
   fi
 
   # Set formatting

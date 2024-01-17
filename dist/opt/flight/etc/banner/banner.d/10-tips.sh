@@ -26,7 +26,7 @@
 #==============================================================================
 (
   if [[ ${flight_STARTER_tips:-enabled} != "enabled" ]] ; then
-    exit
+    return
   fi
   bold="$(tput bold)"
   clr="$(tput sgr0)"
