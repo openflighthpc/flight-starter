@@ -139,18 +139,20 @@ case $action in
     The keys are as follows: 
 
       hints         Toggle showing of hints to start/enable ${flight_STARTER_product}
-                    system (when 'always' is off) 
+                    system (in inactive ${flight_STARTER_product} environments) 
 
-      welcome       Toggle showing of welcome to cluster line (when 'always' is off)
+      welcome       Toggle showing of welcome to cluster line (in inactive
+                    ${flight_STARTER_product} environments)
 
       secondary     Toggle running of ${flight_STARTER_product} on secondary shells
 
       always        Set whether ${flight_STARTER_product} is activated on login 
 
-      tips          Set ${flight_STARTER_product} sub-command tips (when 'always' is on)
+      tips          Set ${flight_STARTER_product} sub-command tips (in active 
+                    ${flight_STARTER_product} environments)
 
       status        Set showing of ${flight_STARTER_product} cluster status
-                    (when 'always' is on)
+                    (in active ${flight_STARTER_product} environments)
 
     Specify '--global' option to make the setting apply system-wide
     (requires superuser access).
