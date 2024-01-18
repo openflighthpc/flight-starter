@@ -147,6 +147,8 @@ case $action in
     Specify '--global' option to make the setting apply system-wide
     (requires superuser access).
 
+    For more information see '$flight_NAME info'.
+
 EOF
     ;;
   hints|hint|hin|hi|h)
