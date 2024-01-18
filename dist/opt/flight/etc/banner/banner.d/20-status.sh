@@ -63,10 +63,10 @@
   echo ""
 
   # Profile info
-  finished="$(grep exit_status ${flight_ROOT}/opt/profile/var/inventory/* |awk '{print $2}' |grep -v '^$')"
+  finished="$(grep -R exit_status ${flight_ROOT}/opt/profile/var/inventory/ |awk '{print $2}' |grep -v '^$')"
   completed_nodes="$(echo "$finished" |grep '^0$' |grep -v '^$' -c )"
   failed_nodes="$(echo "$finished" |grep -v '^0$' |grep -v '^$' -c )"
-  applying_nodes="$(grep deployment_pid ${flight_ROOT}/opt/profile/var/inventory/* |awk '{print $2}' |grep -v '^$' -c)"
+  applying_nodes="$(grep -R deployment_pid ${flight_ROOT}/opt/profile/var/inventory/ |awk '{print $2}' |grep -v '^$' -c)"
   printf "${bold}${white}${bgblue}Configured Nodes$flight_TIP_command${clr}${bold}${white}${clr}\n"
   printf "  ${bold}${white}${bggreen}Completed:$flight_TIP_command${clr}${bold}${white}${clr}\
     $completed_nodes\
