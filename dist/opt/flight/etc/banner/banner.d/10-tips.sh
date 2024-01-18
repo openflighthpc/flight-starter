@@ -46,6 +46,12 @@
       echo ""
       unset flight_TIP_break
     fi
+    if [ "$flight_TIP_root" == "true" ]; then
+      if ! sudo -ln /bin/bash &>/dev/null ; then
+        continue
+      fi
+      unset flight_TIP_root
+    fi
     if [ -n "$flight_TIP_command" -a -n "$flight_TIP_synopsis" ]; then
       printf "%-${len}s - %s\n" \
              "${bold}${white}'${bgblue}$flight_TIP_command${clr}${bold}${white}'${clr}" \
