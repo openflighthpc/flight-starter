@@ -25,6 +25,9 @@
 # https://github.com/openflighthpc/flight-starter
 #==============================================================================
 (
+  if [[ ${flight_TIPS_show:-enabled} != "enabled" ]] ; then
+    return
+  fi
   bold="$(tput bold)"
   clr="$(tput sgr0)"
   if [[ $TERM =~ "256color" ]]; then

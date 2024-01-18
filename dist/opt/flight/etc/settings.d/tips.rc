@@ -1,0 +1,8 @@
+flight_SET_key=flight_TIPS_show
+flight_SET_desc="${flight_STARTER_product} banner tips"
+flight_SET_info="
+ * To disable ${flight_STARTER_product} sub-command tips (in
+   active ${flight_STARTER_product} environments)
+
+     ^flight set tips off}
+"
