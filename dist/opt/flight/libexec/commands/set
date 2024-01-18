@@ -125,6 +125,12 @@ setup
 
 case $action in
   help|hel|he|h|--help|-h)
+    shopt -s nullglob
+    _additional=""
+    for a in "${flight_ROOT}"/etc/settings.d/*.rc; do
+	_additional="${_additional}, '$(basename "$a" .rc)'"
+    done
+    shopt -u nullglob
     cat <<EOF
   SYNOPSIS:
 
@@ -132,9 +138,11 @@ case $action in
 
   DESCRIPTION:
 
-    Set the ${flight_STARTER_product} setting <key> to <value>. Valid
-    keys are 'hints', 'welcome', 'secondary' and 'always'. Valid
-    values are 'on' and 'off'.
+    Set the ${flight_STARTER_product} setting <key> to <value>. Valid keys are:
+
+      'hints', 'welcome', 'secondary'${_additional} and 'always'
+
+    Valid values are 'on' and 'off'.
 
     Specify '--global' option to make the setting apply system-wide
     (requires superuser access).
@@ -174,7 +182,16 @@ EOF
     exit 1
     ;;
   *)
+    if [ -f "${flight_ROOT}"/etc/settings.d/$action.rc ]; then
+	. "${flight_ROOT}"/etc/settings.d/$action.rc
+	if set_val "${flight_SET_key}" "$2"; then
+	    echo "${flight_NAME} set: ${flight_SET_desc} ${state}."
+	else
+	    exit 1
+	fi
+    else
     echo "${flight_NAME} set: unrecognized setting"
     exit 1
+    fi
     ;;
 esac

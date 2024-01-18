@@ -97,6 +97,14 @@ case $action in
 EOF
     ;;
   *)
+    shopt -s nullglob
+    _additional="$(echo)"
+    for a in "${flight_ROOT}"/etc/settings.d/*.rc; do
+	. "$a"
+	_additional="${_additional}${flight_SET_info}$(echo)"
+    done
+    shopt -u nullglob
+
     export LESS=${LESS:--FRX}
     (
       cat <<EOF
@@ -136,7 +144,7 @@ You may configure the behaviour of ${flight_STARTER_product} on log in to your e
    in, execute:
 
      ^flight set always on}
-
+$_additional
 You can toggle these settings 'on' or 'off' at any time.
 
 +== Further help ==}
